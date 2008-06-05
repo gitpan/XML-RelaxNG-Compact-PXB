@@ -1,0 +1,15 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/XML/RelaxNG/Compact/PXB.pm
+lib/XML/RelaxNG/Compact/DataModel.pm
+t/pod-coverage.t
+t/pod.t
+t/XML::RelaxNG::Compact::PXB.t
+doc/perlcritic
+doc/perltidyrc
+doc/pxb-docs.pod
+doc/pxb-docs.html
+examples/logger.conf
+test.pl
