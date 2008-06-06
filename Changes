@@ -1,5 +1,8 @@
 Revision history for PXB
 
+0.02    6/6/2008
+        Fixed white noise in pods, added pre-req checks
+	
 0.01    6/4/2008
         First version, released on an unsuspecting world.
 

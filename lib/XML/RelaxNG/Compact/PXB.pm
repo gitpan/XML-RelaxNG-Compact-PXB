@@ -3,37 +3,33 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = qv('0.01');
+use version; our $VERSION = '0.02';
 
 
 =head1 NAME
 
-   XML::RelaxNG::Compact::PXB  -    create perl XML (RelaxNG Compact) data binding API
+XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding API
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =head1 DESCRIPTION
 
 
-       The instance of this class is capable of generating the API tree of the perl objects
-    based on  XML (RelaxNG compact) schema described  as perl data structures. If you have bunch
-    of XML schemas ( and able to convert them into RelaxNG Compact ) and hate to waste your time
-    by writing DOM tree walking code then this module may help you. Of course POD will be created
-    automatically as well.
-       Also, it will build the tests suit automatically as well and provide perltidy and perlcritic 
-    config files for you to assure the absence of problems in your API. The L<Perl::Critic> test will
-    be performed as part of the tests suit.
-  
-    See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
-     
+The instance of this class is capable of generating the API tree of the perl objects
+based on  XML (RelaxNG compact) schema described  as perl data structures. If you have bunch
+of XML schemas ( and able to convert them into RelaxNG Compact ) and hate to waste your time
+by writing DOM tree walking code then this module may help you. Of course POD will be created automatically as well.
+Also, it will build the tests suit automatically as well and provide perltidy and perlcritic 
+config files for you to assure the absence of problems in your API. The L<Perl::Critic> test will
+be performed as part of the tests suit.
 
+See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
 
 =head1 SYNOPSIS
 
-=begin text
-
+ 
       ###
       use    XML::RelaxNG::Compact::PXB;
      
@@ -84,8 +80,6 @@ Version 0.01
 
       ####
 
-=end text
-
 =head1 METHODS
 
 =cut
@@ -104,39 +98,49 @@ XML::RelaxNG::Compact::PXB->mk_accessors(XML::RelaxNG::Compact::PXB->show_fields
 
 =head2 new({})
 
-   creates new object, accepts reference to hash as parameters container  
-   where keys are:
+creates new object, accepts reference to hash as parameters container  
+where keys are:
 
 =over
 
-=item    C<DEBUG> - set it to something defined to provide extra logging
+=item
 
-=item   C<top_dir> - full pathname to the api root dir, for example test files will be placed as top_dir/test_dir
+B<DEBUG> - set it to something defined to provide extra logging
 
-         Default: C<current directory>
+=item
 
-=item   C<nsregistry> - reference to the hash with {ns_prefix => ns_URI} pairs, it will be built into the Element class
+B<top_dir> - full pathname to the api root dir, for example test files will be placed as top_dir/test_dir
+B<Default:> C<current directory>
 
+=item 
 
-=item    C<datatypes_root> - name of the generated datatypes directory
-          
-	  Default: C<XMLTypes>
+B<nsregistry> - reference to the hash with {ns_prefix => ns_URI} pairs, it will be built into the Element class
+B<Default:> just XSD and XSI namespaces
 
-=item    C<schema_version> - version identifier for your XML schema
-        
-	 Default: C<1.0>
+=item
 
-=item   C<test_dir> - name for the test suit files ( relative to the <top_dir>)
-        
-	 Default:  C<t>
+B<datatypes_root> - name of the generated datatypes directory
+B<Default:> I<XMLTypes>
 
-=item   C<footer> - container of  the object - L<POD::Credentials>, used for printing POD footer with  SEE ALSO, AUTHOR, COPYRIGHT, LICENSE 
+=item
+
+B<schema_version> - version identifier for your XML schema
+B<Default:> I<1.0>
+
+=item
+
+B<test_dir> - name for the test suit files ( relative to the <top_dir>)
+B<Default:>  I<t>
+
+=item
+
+B<footer> - container of  the object - L<POD::Credentials>, used for printing POD footer with  SEE ALSO, AUTHOR, COPYRIGHT, LICENSE 
 
 
 =back
 
 
-   Possible ways to call B<new()>:
+Possible ways to call B<new()>:
 
   ### with defaults
   $api_builder =   XML::RelaxNG::Compact::PXB->new();
@@ -251,22 +255,28 @@ sub  _dirPath {
     return $path;
 }
 
-=head2 buildAPI
+=head2 buildAPI()
 
-   builds XML binding API recursively
-   accepts    parameters:
+builds XML binding API recursively
+accepts    parameters:
 
 =over
 
-=item    name of the root element - undef by default
+=item
 
-=item    reference to the hash representing the RelaxNG Compact schema, empty hash ref by default
+name of the root element - undef by default
 
-=item    parent - is C<undef> for the root element
+=item
+
+reference to the hash representing the RelaxNG Compact schema, empty hash ref by default
+
+=item
+
+parent - is C<undef> for the root element
 
 =back
 
-   returns $self
+returns $self
 
 =cut
 
@@ -315,9 +325,9 @@ sub buildAPI {
 
 =head2 buildHelpers
 
-     shortcut to build Helper classes only, no arguments
-    returns $self
-    
+  shortcut to build Helper classes only, no arguments
+  returns $self
+
 =cut
 
 sub buildHelpers {
@@ -329,9 +339,8 @@ sub buildHelpers {
 
 =head2 buildAM
 
-   prints accessors and mutators for the passed reference to array of names
-   
-   returns $self
+ prints accessors and mutators for the passed reference to array of names
+ returns $self
 
 =cut
 
@@ -344,7 +353,7 @@ sub buildAM {
 
 \=head2 get_$name
 
-     accessor  for $name, assumes hash based class
+ accessor  for $name, assumes hash based class
 
 \=cut
 
@@ -355,7 +364,7 @@ sub get_$name {
 
 \=head2 set_$name
 
-      mutator for $name, assumes hash based class
+mutator for $name, assumes hash based class
 
 \=cut
 
@@ -373,8 +382,8 @@ sub set_$name {
 
 =head2 buildTests
 
-     shortcut to build test files  only, no arguments
-     returns $self
+ shortcut to build test files  only, no arguments
+ returns $self
 
 
 =cut
@@ -389,18 +398,26 @@ sub buildTests {
 
 =head2 buildClass
 
-   builds  single class on the filesystem and corresponded test file
-   accepts parameters:
+builds  single class on the filesystem and corresponded test file
+accepts parameters:
 
 =over
 
-=item     name of the   element
-=item     hashref with the element definition
-=item     hashref with parent definition if its not the root element
+=item
+
+name of the   element
+
+=item
+
+hashref with the element definition
+
+=item
+
+hashref with parent definition if its not the root element
 
 =back
 
-   returns $self
+returns $self
 
 =cut
 
@@ -488,14 +505,14 @@ use version; our \$VERSION = qv("$version");
 
 \=head1 NAME
 
- $className  -  this is data binding class for  '$name'  element from the XML schema namespace $ns
+$className  -  this is data binding class for  '$name'  element from the XML schema namespace $ns
 
 \=head1 DESCRIPTION
 
-   Object representation of the $name element of the $ns XML namespace .
-   Object fields are:
+Object representation of the $name element of the $ns XML namespace.
+Object fields are:
 
-    /);
+/);
 
 #------------------------------------------------------------------------------
 #  printing attributes
@@ -508,13 +525,13 @@ use version; our \$VERSION = qv("$version");
 
     $self->sayIt(qq/
 
-   The constructor accepts only single parameter, it could be a hashref with keyd  parameters hash  or DOM of the  '$name' element
-   Alternative way to create this object is to pass hashref to this hash: { xml => <xml string> }
-   Please remeber that namesapce prefix is used as namespace id for mapping which not how it was intended by XML standard. The consequence of that
-   is if you serve some XML on one end of the webservices piepline then the same namespace prefixes MUST be used on ther one for the same namespace URNs.
-   This constraint can be fixed in the future releases.
+The constructor accepts only single parameter, it could be a hashref with keyd  parameters hash  or DOM of the  '$name' element
+Alternative way to create this object is to pass hashref to this hash: { xml => <xml string> }
+Please remeber that namesapce prefix is used as namespace id for mapping which not how it was intended by XML standard. The consequence of that
+is if you serve some XML on one end of the webservices piepline then the same namespace prefixes MUST be used on ther one for the same namespace URNs.
+This constraint can be fixed in the future releases.
 
-   Note: this class utilizes L<Log::Log4perl> module, see corresponded docs on CPAN.
+Note: this class utilizes L<Log::Log4perl> module, see corresponded docs on CPAN.
 
 \=head1 SYNOPSIS
 
@@ -560,11 +577,11 @@ use Readonly;
     $self->sayIt(");");
     $self->sayIt(qq/
 
-\=head2 new( )
+\=head2 new({})
 
-      creates   object, accepts DOM with  element tree or hashref to the list of
-      keyd parameters
-    /);
+ creates   object, accepts DOM with element's tree or hashref to the list of
+ keyd parameters:
+/);
 
     map { $self->sayIt("         $_   => undef,")  }  @attributes ;
     map { $self->sayIt("         " . $_->[0]  . " => " . ref($_->[1]) . ",")   }  @elementnodes;
@@ -572,6 +589,7 @@ use Readonly;
     $self->sayIt(" text => 'text'") if $element->{text};
 
     $self->sayIt(qq/
+returns: \$self
 
 \=cut
 
@@ -625,8 +643,8 @@ sub new {
 
 \=head2   getDOM (\$parent)
 
-       accepts parent DOM  serializes current object into the DOM, attaches it to the parent DOM tree and
-       returns $name object DOM
+ accepts parent DOM  serializes current object into the DOM, attaches it to the parent DOM tree and
+ returns $name object DOM
 
 \=cut
 
@@ -715,13 +733,13 @@ sub getDOM {
 
 \=head2  add\u${subname}()
 
-    if any of subelements can be an array then this method will provide
-    facility to add another element to the  array and will return ref to such array
-    or just set the element to a new one, if element has and 'id' attribute then it will
-    create idmap  
-
-    Accepts:  obj
-    Returns: arrayref of objects
+ if any of subelements can be an array then this method will provide
+ facility to add another element to the  array and will return ref to such array
+ or just set the element to a new one, if element has and 'id' attribute then it will
+ create idmap  
+ 
+ Accepts:  obj
+ Returns: arrayref of objects
 
 \=cut
 
@@ -736,10 +754,11 @@ sub add\u${subname} {
 
 \=head2  remove\u${subname}ById()
 
-     removes specific element from the array of ${subname} elements by id ( if id is supported by this element )
-     Accepts:  single param - id - which is id attribute of the element
-     if there is no array then it will return undef and warninig
-     if it removed some id then \$id will be returned
+ removes specific element from the array of ${subname} elements by id ( if id is supported by this element )
+ Accepts:  single param - id - which is id attribute of the element
+ 
+ if there is no array then it will return undef and warninig
+ if it removed some id then \$id will be returned
 
 \=cut
 
@@ -759,13 +778,12 @@ sub remove\u${subname}ById {
     return;
 }
 
- 
-
 \=head2  get\u${subname}ById()
 
-     get specific element from the array of ${subname} elements by id ( if id is supported by this element )
-     accepts single param - id
-     if there is no array then it will return just an object
+ get specific element from the array of ${subname} elements by id ( if id is supported by this element )
+ Accepts single param - id
+ 
+ if there is no array then it will return just an object
 
 \=cut
 
@@ -786,14 +804,17 @@ sub get\u${subname}ById {
 
     }
 
- $self->sayIt(qq/
+    $self->sayIt(qq/
 
 \=head2  querySQL ()
 
-    depending on SQL mapping decalration it will return some hash ref  to the  decalred fields
-    for example querySQL ()
-    accepts one optional parameter - query hashref, it will fill this hashref
-    will return:
+ depending on SQL mapping decalration it will return some hash ref  to the  decalred fields
+ for example querySQL ()
+ 
+ Accepts one optional parameter - query hashref, it will fill this hashref
+ 
+ will return:
+    
     { <table_name1> =>  {<field name1> => <value>, ...},...}
 
 \=cut
@@ -893,8 +914,8 @@ sub  querySQL {
 
 \=head2  buildIdMap()
 
-    if any of subelements has id then get a map of it in form of
-    hashref to { element}{id} = index in array and store in the idmap field
+ if any of subelements has id then get a map of it in form of
+ hashref to { element}{id} = index in array and store in the idmap field
 
 \=cut
 
@@ -929,8 +950,9 @@ sub  buildIdMap {
 
 \=head2  asString()
 
-   shortcut to get DOM and convert into the XML string
-   returns nicely formatted XML string  representation of the  $name object
+ shortcut to get DOM and convert into the XML string
+ 
+ returns nicely formatted XML string  representation of the  $name object
 
 \=cut
 
@@ -942,8 +964,10 @@ sub asString {
 
 \=head2 registerNamespaces ()
 
-   will parse all subelements and return reference to hash with namespace prfixes
-   most parsers are expecting to see namespace registration info in the document root element declaration
+ will parse all subelements
+ returns reference to hash with namespace prfixes
+ 
+ most parsers are expecting to see namespace registration info in the document root element declaration
 
 \=cut
 
@@ -981,8 +1005,8 @@ sub registerNamespaces {
 
 \=head2  fromDOM (\$)
 
-   accepts parent XML DOM  element  tree as parameter
-   returns $name  object
+ accepts parent XML DOM  element  tree as parameter
+ returns $name  object
 
 \=cut
 
@@ -1099,7 +1123,7 @@ sub _placeCritidy {
     severity = 1
 
     [ControlStructures::ProhibitPostfixControls]
-    allow = if unless  #custom configuration
+    allow = if unless
     severity = 2
 
     #--------------------------------------------------------------
@@ -1136,15 +1160,17 @@ sub _placeCritidy {
 
 =head2  buildTest
 
-     auxiliary method
-     it builds test file for current class
-     accepts:
-            reference to array with elements,
-            reference to array with attributes,
-            class name
-            name of the package
-            element name
-     returns: nothing
+ auxiliary method
+ it builds test file for current class
+ accepts:
+
+       reference to array with elements,
+       reference to array with attributes,
+       class name
+       name of the package
+       element name
+
+ returns: nothing
 
 =cut
 
@@ -1466,7 +1492,7 @@ sub _printFromDOM {
 
 =head2 saying
 
-    prints string into the  file handler without new line
+ prints string into the  file handler without new line
 
 =cut
 
@@ -1478,7 +1504,7 @@ sub saying {
 
 =head2 sayIt
 
-    prints string into the   file handler with new line added
+ prints string into the   file handler with new line added
 
 =cut
 
@@ -1524,12 +1550,13 @@ use base 'Exporter';
 
 \=head1 NAME
 
-  $element_package -  static class for basic element manipulations
+$element_package -  static class for basic element manipulations
 
 \=head1 DESCRIPTION
 
-      it exports only single call - getElement which allows to create XML DOM out of perl object
-      This module was automatically build by L<XML::RelaxNG::Compact::PXB>.
+it exports only single call - getElement which allows to create XML DOM out of perl object
+This module was automatically build by L<XML::RelaxNG::Compact::PXB>.
+
 \=cut
 
 our \@EXPORT_OK   = qw(\&getElement);
@@ -1550,26 +1577,25 @@ our \$LOGGER = get_logger(\$CLASSPATH);
 
 \=head2    getElement ()
 
-      create   element from some data struct and return it as DOM
-      accepts 1 parameter - hashref to hash of keyd parameters
-      where:
+ create   element from some data struct and return it as DOM
+ accepts 1 parameter - hashref to hash of keyd parameters
 
-\=over
+ where:
+ 
+  'name' =>  name of the element
+ 
+  'ns' => [ namespace id1, namespace id2 ...] array ref
+ 
+  'parent' => parent DOM if provided ( element will be created in context of the parent),
+ 
+  'attributes' =>  arrayref to the array of attributes pairs,
+                   where to get i-th attribute one has to  \$attr->[i]->[0] for  name  and  \$attr->[i]->[1]  for value
+ 
+  'text' => <CDATA>
 
-\=item        'name' =>  name of the element
-
-\=item       'ns' => [ namespace id1, namespace id2 ...] array ref
-
-\=item       'parent' => parent DOM if provided ( element will be created in context of the parent),
-
-\=item       'attributes' =>  arrayref to the array of attributes pairs
-           (where to get i-th attribute one has to  \$attr->[i]->[0] for  name  and  \$attr->[i]->[1]  for value)
-
-\=item     'text' => <CDATA>
-           creates  new   element, returns this element
+ creates  new   element, returns this element
 
 \=back
-
 
 \=cut
 
@@ -1641,13 +1667,13 @@ use version;our \$VERSION = qv("$version");
 
 \=head1 NAME
 
-    $nsmap_package - element names to namespace prefix mapper
+$nsmap_package - element names to namespace prefix mapper
 
 \=head1 DESCRIPTION
 
-      this class designed to map element localname to registered namespace, the object of this
-      class is supposed to be member of the each PXB binded object in order to allow propagation of the
-      registered namespaces throughout the API
+this class designed to map element localname to registered namespace, the object of this
+class is supposed to be member of the each PXB binded object in order to allow propagation of the
+registered namespaces throughout the API
 
 \=head1 SYNOPSIS
 
@@ -1658,13 +1684,13 @@ use version;our \$VERSION = qv("$version");
 
 \=head1 METHODS
 
-\=head2 new
+\=head2 new({})
 
-    new  - constructor, accepts single paramter - hashref with the hash of:
-
-       C<element_name> => C<URI>,...,C<element_name> => C<URI>  #  mapped element on ns hashref
-
-     the namespace registry track relation between namespace URI and used prefix
+ new  - constructor, accepts single paramter - hashref with the hash of:
+ 
+ <element_name> =>  <URI>,..., <element_name> =>  <URI>  #  mapped element on ns hashref
+ 
+ the namespace registry track relation between namespace URI and used prefix
 
 \=cut
 
@@ -1694,7 +1720,7 @@ sub new {
 }
 
 
-\=head2      mapname ()
+\=head2 mapname()
 
     maps localname on the prefix
     accepts:
@@ -1728,16 +1754,16 @@ sub mapname {
 
 =head1 AUTHOR
 
-   Maxim Grigoriev (FNAL), maxim_at_fnal_dot_gov
+Maxim Grigoriev (FNAL), maxim_at_fnal_dot_gov
 
 =head1 LICENSE
 
-  You should have received a copy of the Fermitools license
-  with this software.  If not, see <http://fermitools.fnal.gov/about/terms.html>
+You should have received a copy of the Fermitools license
+with this software.  If not, see <http://fermitools.fnal.gov/about/terms.html>
 
 =head1  COPYRIGHT
 
-  Copyright(c) 2007-2008, Fermi Reasearch Alliance (FRA)
+Copyright(c) 2007-2008, Fermi Reasearch Alliance (FRA)
 
 =cut
  
