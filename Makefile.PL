@@ -4,12 +4,12 @@ name             'XML-RelaxNG-Compact-PXB';
 author_from      'lib/XML/RelaxNG/Compact/PXB.pm';
 
 license          'Fermitools';
-version          '0.01';
+version          '0.03';
 perl_version     '5.0061';
 all_from 	 'lib/';
 
  
-requires  'XML::LibXML' => '1.55';
+requires  'XML::LibXML' => '1.61';
 requires  'XML::NamespaceSupport' => '1';
 requires  'XML::LibXML::Common'  => '0.13';
 requires  'Test::More' => 0;
@@ -20,7 +20,7 @@ requires  'Scalar::Util' => 0;
 requires  'Class::Accessor'  => 0;
 requires  'Class::Fields'  => 0; 
  
-requires  'POD::Credentials' => '0.02';
+requires  'POD::Credentials' => '0.03';
 requires  'Perl::Critic' => 0;
 requires  'Perl::Tidy' => 0;
 requires  'File::Basename' => 0;
@@ -36,8 +36,6 @@ requires  'FreezeThaw' => 0;
 requires  'Readonly' => 0;
  
  
-requires_external_bin 'xml2-config';
-
 no_index directory  => 't';
  
 

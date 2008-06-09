@@ -1,8 +1,12 @@
 Revision history for PXB
 
-0.02    6/6/2008
+0.03    6/9/2008 mpg
+        Removed external dependence on xml2-config executable
+	added pre-req to have XML::LibXML v1.61 or better
+
+0.02    6/6/2008 mpg
         Fixed white noise in pods, added pre-req checks
 	
-0.01    6/4/2008
+0.01    6/4/2008 mpg
         First version, released on an unsuspecting world.
 
