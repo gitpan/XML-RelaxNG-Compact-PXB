@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.03';
+use version; our $VERSION = '0.04';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =head1 DESCRIPTION
 

@@ -1,43 +1,41 @@
-use inc::Module::Install;
+use strict;
+use warnings;
+use ExtUtils::MakeMaker;
 
-name             'XML-RelaxNG-Compact-PXB';
-author_from      'lib/XML/RelaxNG/Compact/PXB.pm';
+WriteMakefile(
+    'NAME'		 => 'XML::RelaxNG::Compact::PXB',
+    'VERSION_FROM'	 => 'lib/XML/RelaxNG/Compact/PXB.pm',  
+    'AUTHOR'             =>  'Maxim Grigoriev, maxim_at_fnal_dot_gov',  
+    'ABSTRACT'           => 'XML RelaxNG Compact data binding',
+    'PL_FILES'           => {},    
+    'PREREQ_PM'		=> {
+			    'XML::LibXML' => 1.61,
+			    'XML::NamespaceSupport' => 1,
+                            'XML::LibXML::Common'  => 0.13,
+			    'XML::LibXML::XPathContext' => 0.04,
+			    'Test::More' => 0, 
+		            'Test::Harness' => 0,
+                            'Log::Log4perl' => 0,
+                            'Scalar::Util' => 0,
+                            'Class::Accessor'  => 0,
+                            'Class::Fields'  => 0, 
+                            'POD::Credentials' => 0.03,
+                            'Perl::Critic' => 0,
+                            'Perl::Tidy' => 0,
+                            'File::Basename' => 0,
+                            'File::Path' => 0,
+                            'Data::Dumper' => 0,
+                            'FindBin' => 0,                           
+                            'version'  => 0, 
+                            'fields'  => 0, 
+                            'FreezeThaw' => 0,
+                            'Readonly' => 0,			    
+			   },
+    	  
+ 
+     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+     clean               => { FILES => 'XML-RelaxNG-Compact-PXB-* t/data/*' },
 
-license          'Fermitools';
-version          '0.03';
-perl_version     '5.0061';
-all_from 	 'lib/';
+);
 
  
-requires  'XML::LibXML' => '1.61';
-requires  'XML::NamespaceSupport' => '1';
-requires  'XML::LibXML::Common'  => '0.13';
-requires  'Test::More' => 0;
-
-requires  'Test::Harness' => 0;
-requires  'Log::Log4perl' => 0;
-requires  'Scalar::Util' => 0;
-requires  'Class::Accessor'  => 0;
-requires  'Class::Fields'  => 0; 
- 
-requires  'POD::Credentials' => '0.03';
-requires  'Perl::Critic' => 0;
-requires  'Perl::Tidy' => 0;
-requires  'File::Basename' => 0;
-requires  'File::Path' => 0;
- 
-requires  'Data::Dumper' => 0;
-requires  'FindBin' => 0; 
-requires  'base'  => 0; 
-requires  'version'  => 0; 
-requires  'fields'  => 0; 
- 
-requires  'FreezeThaw' => 0;
-requires  'Readonly' => 0;
- 
- 
-no_index directory  => 't';
- 
-
-auto_install;
-WriteAll;

@@ -1,5 +1,8 @@
 Revision history for PXB
 
+0.04    6/9/2008 mpg
+        moved back to ExtUtils::Makemaker for makefile
+
 0.03    6/9/2008 mpg
         Removed external dependence on xml2-config executable
 	added pre-req to have XML::LibXML v1.61 or better
