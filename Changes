@@ -1,5 +1,9 @@
 Revision history for PXB
 
+0.05    6/10/2008 mpg
+        added Test::Perl::Critic for test suit, added dependencies checks
+	to avoid failing tests
+
 0.04    6/9/2008 mpg
         moved back to ExtUtils::Makemaker for makefile
 

@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.04';
+use version; our $VERSION = '0.05';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =head1 DESCRIPTION
 
@@ -501,7 +501,7 @@ returns $self
 use strict;
 use warnings;
 use English qw(-no_match_vars);
-use version; our \$VERSION = qv("$version");
+use version; our \$VERSION = '$version';
 
 \=head1 NAME
 
@@ -1218,15 +1218,16 @@ use Test::More;
 use Data::Dumper; 
 use FindBin qw(\$Bin);  
 use Log::Log4perl qw(:easy :levels); 
-use Perl::Critic;
-use FreezeThaw qw(cmpStr);
 use English qw( -no_match_vars);
+/);
+    $self->sayIt('use Test::Perl::Critic (-severity => 3, -verbose => 4,  -profile => "' . $self->test_dir . '/conf/perlcritic");');
+    $self->sayIt(qq/
 
 ## see BEGIN block at the bottom for the number of tests and use_ok package check
 
 Log::Log4perl->easy_init(\$ERROR);   
-
 /);
+
 
     foreach my $el (@{$elementnodes}) {
         foreach my $ns (keys %{$self->{_known_class}->{$el->[0]}}) {
@@ -1238,9 +1239,10 @@ Log::Log4perl->easy_init(\$ERROR);
     }
     $self->sayIt("#", $test_number++);
    
-    $self->sayIt('my $critic = Perl::Critic->new(-severity => "cruel", -profile => "' . $self->test_dir . '/conf/perlcritic");');
-    $self->sayIt('my @problems = $critic->critique("' .  $self->top_dir ."/". $self->datatypes_root . "/" . $self->{_schema_version_dir} . "/$ns" .  $self->_dirPath . '.pm");');
-    $self->sayIt('ok(!@problems , " perl critic have not found any problems") or diag(" perl critic found problems:" . (join "\n" , @problems));');
+    $self->sayIt('critic_ok("' .  $self->top_dir ."/". $self->datatypes_root . "/" . 
+                                  $self->{_schema_version_dir} . "/$ns" .  
+				  $self->_dirPath . '.pm", "perl critic have not found any problems") 
+	            or diag(" perl critic found problems ");');
   
     $self->sayIt("#", $test_number++);
     my $accessors =  'get_' . (join ' get_', @{$attributes}, map {$_->[0]} @{$elementnodes});
