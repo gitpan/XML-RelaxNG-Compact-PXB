@@ -2,7 +2,7 @@ package   XML::RelaxNG::Compact::DataModel;
  
 use strict;
 use warnings;
-use version; our $VERSION = '0.05';  
+use version; our $VERSION = '0.06';  
 
 =head1 NAME
 
@@ -11,7 +11,7 @@ XML::RelaxNG::Compact::DataModel -  RelaxNG Compact L<http://relaxng.org/compact
 
 =head1 VERSION
 
-Version 0.05 
+Version 0.06 
 
 =head1 DESCRIPTION
 

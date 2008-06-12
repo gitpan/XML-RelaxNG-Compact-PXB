@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.05';
+use version; our $VERSION = '0.06';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =head1 DESCRIPTION
 
@@ -500,6 +500,7 @@ returns $self
 
 use strict;
 use warnings;
+use utf8;
 use English qw(-no_match_vars);
 use version; our \$VERSION = '$version';
 
@@ -1102,7 +1103,11 @@ sub _placeCritidy {
     
     $self->_fh(IO::File->new("$basename/perlcritic",'w+')); 
     
-    $self->sayIt(qq{## layout according to the supplied perltidy
+    $self->sayIt(qq{
+    severity = 2
+    only = 1
+    theme = (pbp + core + bugs + readability)
+    ## layout according to the supplied perltidy
     [CodeLayout::RequireTidyCode]
     perltidyrc =  $basename/perltidyrc
     #--------------------------------------------------------------
@@ -1126,13 +1131,7 @@ sub _placeCritidy {
     allow = if unless
     severity = 2
 
-    #--------------------------------------------------------------
-    # Give these policies a custom theme.  I can activate just
-    # these policies by saying (-theme => 'larry + curly')
-
-    [Modules::RequireFilenameMatchesPackage]
-    add_themes = larry
-     
+    
     #--------------------------------------------------------------
     # I do not agree with these at all or their 
     # presence may create more worse than good
