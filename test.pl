@@ -1,6 +1,9 @@
 use strict;
 use warnings;
 
+#
+#  for those Test::Harness lovers out there
+#
 use Test::Harness;
 use File::Basename;
  

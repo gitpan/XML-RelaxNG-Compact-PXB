@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.06';
+use version; our $VERSION = '0.07';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =head1 DESCRIPTION
 
@@ -600,7 +600,6 @@ Readonly::Scalar our \$LOCALNAME => '$name';
 
 sub new {
     my (\$that, \$param) = \@_;
-
     my \$class = ref(\$that) || \$that;
     my \$self =  fields::new(\$class );
     \$self->set_LOGGER(get_logger( \$CLASSPATH ));
@@ -610,7 +609,6 @@ sub new {
 
 #### printing the rest of constructor
     $self->sayIt(qq"
-
     if(\$param) {
         if(blessed \$param && \$param->can('getName')  && (\$param->getName =~ m/\$LOCALNAME\$/xm) ) {
             return  \$self->fromDOM(\$param);
@@ -654,8 +652,7 @@ sub getDOM {
     my \$$name;
     eval {
          \$$name = getElement({name =>   \$LOCALNAME, parent => \$parent , ns  => [\$self->get_nsmap->mapname(\$LOCALNAME)],
-                               attributes => [
-
+                                attributes => [
 ");
 
 #------------------------------- generate serialization ofr each attribute
@@ -664,11 +661,11 @@ sub getDOM {
         print("_printConditional:: $attr = " . $element->{attrs}->{$attr})  if $self->DEBUG;
         $self->sayIt($self->_printConditional($attr, $element->{attrs}->{$attr}, 'get'));
     }
-    $self->sayIt("                                           ],"); # end for attributes
+    $self->sayIt("                                               ],"); # end for attributes
     $self->sayIt($self->_printConditional('text', $element->{text} , 'get')) if ($element->{text});
 
     $self->sayIt("                               });");
-    $self->sayIt("    };");
+    $self->sayIt("        };");
     $self->sayIt("    if(\$EVAL_ERROR) {");
     $self->sayIt("         \$self->get_LOGGER->logdie(\" Failed at creating DOM: \$EVAL_ERROR\");");
     $self->sayIt("    }");
@@ -822,7 +819,6 @@ sub get\u${subname}ById {
 
 sub  querySQL {
     my (\$self, \$query) = \@_;
-
 /);
 #
 #   print hash with mapped fields for this class
@@ -860,7 +856,6 @@ sub  querySQL {
     }
     if($elements_names)  {
          $self->sayIt(qq!
-
     foreach my \$subname (qw/$elements_names/) {
         if(\$self->{\$subname} && (ref(\$self->{\$subname}) eq 'ARRAY' ||  blessed \$self->{\$subname})) {
             my \@array = ref(\$self->{\$subname}) eq 'ARRAY'?\@{\$self->{\$subname}}:(\$self->{\$subname});
@@ -878,7 +873,6 @@ sub  querySQL {
     }
     if(%sql_here)  {
         $self->sayIt(qq/
-
     eval {
         foreach my \$table  ( keys \%defined_table) {
             foreach my \$entry (\@{\$defined_table{\$table}}) {
@@ -923,12 +917,10 @@ sub  querySQL {
 sub  buildIdMap {
     my \$self = shift;
     my \%map = ();
-
     /);
 
     if( @elementnodes ) {
         $self->sayIt(qq"
-
     foreach my \$field (qw/$elements_names/) {
         my \@array = ref(\$self->{\$field}) eq 'ARRAY'?\@{\$self->{\$field}}:(\$self->{\$field});
         my \$i = 0;
@@ -948,11 +940,9 @@ sub  buildIdMap {
     $self->sayIt("}");
   
     $self->sayIt(qq/
-
 \=head2  asString()
 
  shortcut to get DOM and convert into the XML string
- 
  returns nicely formatted XML string  representation of the  $name object
 
 \=cut
@@ -985,7 +975,6 @@ sub registerNamespaces {
 
     if( @elementnodes ) {
         $self->sayIt(qq"
-
     foreach my \$field (qw/$elements_names/) {
         my \@array = ref(\$self->{\$field}) eq 'ARRAY'?\@{\$self->{\$field}}:(\$self->{\$field});
         foreach my \$el (\@array) {
@@ -1013,19 +1002,18 @@ sub registerNamespaces {
 
 sub fromDOM {
     my (\$self, \$dom) = \@_;
-
 /);
     print("  fromDOM for: name=$name ") if $self->DEBUG;
     foreach my $attr (@attributes) {
         $self->sayIt($self->_printConditional($attr, $element->{attrs}->{$attr}, 'set'));
-        $self->sayIt("     \$self->get_LOGGER->debug(\" Attribute $attr= \". \$self->get_$attr) if \$self->get_$attr;");
+        $self->sayIt("    \$self->get_LOGGER->debug(\" Attribute $attr= \". \$self->get_$attr) if \$self->get_$attr;");
     }
     $self->sayIt($self->_printConditional('text', $element->{text}, 'set')) if ($element->{text});
     if(@elements) {
-        $self->sayIt("     foreach my \$childnode (\$dom->childNodes) {");
-        $self->sayIt("         my  \$getname  = \$childnode->getName;");
-        $self->sayIt("         my (\$nsid, \$tagname) = split \$COLUMN_SEPARATOR, \$getname;");
-        $self->sayIt("         next unless(\$nsid && \$tagname);");
+        $self->sayIt("    foreach my \$childnode (\$dom->childNodes) {");
+        $self->sayIt("        my  \$getname  = \$childnode->getName;");
+        $self->sayIt("        my (\$nsid, \$tagname) = split \$COLUMN_SEPARATOR, \$getname;");
+        $self->sayIt("        next unless(\$nsid && \$tagname);");
         my $conditon_head =  '        if';
         foreach my $els (@elementnodes) {
             croak(" Element must be an array ref here: name=$name els=$els ") unless ref($els) eq 'ARRAY';
@@ -1056,13 +1044,13 @@ sub fromDOM {
         if(@textnodes) {
             $self->sayIt(" $conditon_head (\$childnode->textContent && \$self->can(\"get_\$tagname\")) {");
             $self->sayIt("            \$self->{\$tagname} =  \$childnode->textContent; ## text node");
-            $self->sayIt("         }");
+            $self->sayIt("        }");
         }
 #        if(@elementnodes || @textnodes) {
 #            $self->sayIt("       \$dom->removeChild(\$childnode); ##remove processed element from the current DOM so subclass can deal with remaining elements\n";
 #        }
-        $self->sayIt("     }");
-        $self->sayIt("     \$self->buildIdMap;\n    \$self->registerNamespaces;");
+        $self->sayIt("    }");
+        $self->sayIt("    \$self->buildIdMap;\n    \$self->registerNamespaces;");
     }
     $self->sayIt("    return \$self;\n}");
     $self->sayIt($self->footer->asString());
@@ -1412,16 +1400,16 @@ sub  _printConditional {
     print("$value Enum List:: " . ( join ":", map { " $_= " . $condition->{$_}} keys  %{$condition})) if $self->DEBUG && !$condition->{condition}  eq 'scalar';
 
     if($condition->{condition}   eq 'scalar') {
-        $string =   $what eq 'get'?"                                               $arrayref_signleft'$key' =>  \$self->$what\_$key$arrayref_signright,\n":
+        $string =   $what eq 'get'?"                                                     $arrayref_signleft'$key' =>  \$self->$what\_$key$arrayref_signright,\n":
                                  "    \$self->$what\_$key($fromDomArg) if($fromDomArg);\n";
     } elsif($condition->{condition}  =~ /^if|unless$/ &&  $condition->{logic}) {
-        $string =  $what eq 'get'?"                                     $arrayref_signleft '$key' => (".$condition->{logic}."?\$self->$what\_$key:undef)$arrayref_signright,\n":
+        $string =  $what eq 'get'?"                                           $arrayref_signleft '$key' => (".$condition->{logic}."?\$self->$what\_$key:undef)$arrayref_signright,\n":
                                  "    \$self->$what\_$key($fromDomArg) if(" . $condition->{logic}. " && $fromDomArg);\n";
     }elsif($condition->{condition} =~ /enum|set|exclude/ &&  $condition->{regexp}) {
 
     my $regexp  =  $what eq 'get'?"(\$self->$what\_$key   " . $condition->{regexp} . ")":"($fromDomArg  " . $condition->{regexp}  .")";
 
-    $string =   $what eq 'get'?"                                     $arrayref_signleft'$key' =>  ($regexp?\$self->$what\_$key:undef)$arrayref_signright,\n":
+    $string =   $what eq 'get'?"                                           $arrayref_signleft'$key' =>  ($regexp?\$self->$what\_$key:undef)$arrayref_signright,\n":
                                  "    \$self->$what\_$key($fromDomArg) if($fromDomArg && $regexp);\n";
 
     } else {
@@ -1476,19 +1464,19 @@ sub _printFromDOM {
     my ($self, $subname, $el, $type, $conditon_head, $cond_string) = @_;
     my  $subnameUP =  ucfirst($subname);
     print("Building fromDOM: type=$type subname=$subname") if $self->DEBUG;
-    $self->sayIt(" $conditon_head ($cond_string\$tagname eq  '$subname' && \$nsid eq '".  $el->{'attrs'}{'xmlns'}  ."' && \$self->can(\"get_\$tagname\")) {");
-    $self->sayIt("             my \$element = undef;");
-    $self->sayIt("             eval {");
-    $self->sayIt("                 \$element = " . $self->{_known_class}->{$subname}{$el->{'attrs'}{'xmlns'}} . "->new(\$childnode)");
-    $self->sayIt("             };");
-    $self->sayIt("             if(\$EVAL_ERROR || !(\$element  && blessed \$element)) {");
-    $self->sayIt("                 \$self->get_LOGGER->logdie(\" Failed to load and add  $subnameUP : \" . \$dom->toString . \" error: \" . \$EVAL_ERROR);");
-    $self->sayIt("                 return;");
-    $self->sayIt("             }");
-    $self->sayIt((($type eq 'ARRAY')?"            (\$self->get_$subname && ref(\$self->get_$subname) eq 'ARRAY')?push \@{\$self->get_$subname}, \$element:
+    $self->sayIt("   $conditon_head ($cond_string\$tagname eq  '$subname' && \$nsid eq '".  $el->{'attrs'}{'xmlns'}  ."' && \$self->can(\"get_\$tagname\")) {");
+    $self->sayIt("                my \$element = undef;");
+    $self->sayIt("                eval {");
+    $self->sayIt("                    \$element = " . $self->{_known_class}->{$subname}{$el->{'attrs'}{'xmlns'}} . "->new(\$childnode)");
+    $self->sayIt("                };");
+    $self->sayIt("                if(\$EVAL_ERROR || !(\$element  && blessed \$element)) {");
+    $self->sayIt("                    \$self->get_LOGGER->logdie(\" Failed to load and add  $subnameUP : \" . \$dom->toString . \" error: \" . \$EVAL_ERROR);");
+    $self->sayIt("                     return;");
+    $self->sayIt("                }");
+    $self->sayIt((($type eq 'ARRAY')?"               (\$self->get_$subname && ref(\$self->get_$subname) eq 'ARRAY')?push \@{\$self->get_$subname}, \$element:
                                                                                                         \$self->set_$subname([\$element]);":
-                       "           \$self->set_$subname(\$element)") . "; ### add another $subname  ");
-    $self->sayIt("         } ");
+                       "              \$self->set_$subname(\$element)") . "; ### add another $subname  ");
+    $self->sayIt("            } ");
 }
 
 =head2 saying

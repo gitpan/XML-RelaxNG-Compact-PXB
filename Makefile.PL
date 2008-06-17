@@ -22,6 +22,7 @@ WriteMakefile(
                             'Class::Accessor'  => 0,
                             'Class::Fields'  => 0, 
                             'POD::Credentials' => 0.03,
+			    'Perl::Critic' => 1,                       
 			    'Test::Perl::Critic' => 0,                       
                             'Perl::Tidy' => 0,
                             'File::Basename' => 0,
