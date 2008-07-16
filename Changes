@@ -1,4 +1,8 @@
 Revision history for PXB
+0.08    7/16/2008 mpg
+        added automated namespace registration ( namespaces will pop-up into the
+	top element decalration)
+	added example with schema extension pattern
 
 0.07    6/16/2008 mpg
         fixed some glitches with uneven formatting of the generated code

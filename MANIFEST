@@ -11,4 +11,5 @@ doc/perltidyrc
 doc/pxb-docs.pod
 doc/pxb-docs.html
 examples/logger.conf
+examples/test_pxb.pl
 test.pl

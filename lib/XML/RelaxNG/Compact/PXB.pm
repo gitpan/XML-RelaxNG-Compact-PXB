@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.07';
+use version; our $VERSION = '0.08';
 
 
 =head1 NAME
@@ -12,14 +12,14 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =head1 DESCRIPTION
 
 
 The instance of this class is capable of generating the API tree of the perl objects
 based on  XML (RelaxNG compact) schema described  as perl data structures. If you have bunch
-of XML schemas ( and able to convert them into RelaxNG Compact ) and hate to waste your time
+of XML schemes ( and able to convert them into RelaxNG Compact ) and hate to waste your time
 by writing DOM tree walking code then this module may help you. Of course POD will be created automatically as well.
 Also, it will build the tests suit automatically as well and provide perltidy and perlcritic 
 config files for you to assure the absence of problems in your API. The L<Perl::Critic> test will
@@ -44,7 +44,7 @@ See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
                                 [subelement => $subelement ]
                               ],
                  };
-      # define Namespace registry for your schemas
+      # define Namespace registry for your schemes
       
       my $nsreg = { 'nsid' => 'http://nsid/URI',  'nsid2' => 'http://nsid2/URI'};
       
@@ -178,7 +178,7 @@ sub new {
     $self->schema_version("1.0");
     $self->footer(POD::Credentials->new());
     $self->test_dir("/t");
-    ### private fields inititalization
+    ### private fields initialization
     $self->{_known_class} ={}; ## namespace/element specific lookup table for already created classes
     $self->{_existed}={};   ## general lookup table for already created classes
     $self->{_path} = []; ## container for current directory path
@@ -291,16 +291,16 @@ sub buildAPI {
         if(ref($element->{elements}) eq 'ARRAY') {
             mkpath([ $self->top_dir ."/". $self->datatypes_root . "/" . $self->{_schema_version_dir} . "/$ns". $self->_dirPath], 1, 0755) unless $self->_TESTS;
         }
-
+        ###  
         foreach my $el (@{$element->{elements}}) {
             if(ref($el) eq 'ARRAY') {
                 if(ref($el->[1]) eq 'HASH' && $el->[1]->{attrs}) {
                     $self->buildAPI($el->[0],  $el->[1], $element); 
                 } elsif(ref($el->[1]) eq 'ARRAY') {
-                    foreach my $sub_el (@{$el->[1]}) {
-                        if(ref($sub_el) eq 'HASH' && $sub_el->{attrs}) {
+                    foreach my $sub_el (@{$el->[1]}) { ### if right part is arrayref - means choice between elements
+                        if(ref($sub_el) eq 'HASH' && $sub_el->{attrs}) { # choice between single elements
                             $self->buildAPI($el->[0], $sub_el,  $element );
-                        } elsif(ref($sub_el) eq 'ARRAY' && scalar @{$sub_el} == 1) {
+                        } elsif(ref($sub_el) eq 'ARRAY' && scalar @{$sub_el} == 1) {  # choice between multiple
                             $self->buildAPI($el->[0],   $sub_el->[0],    $element  );
                         } else {
                             croak(" Malformed definition: name=" . $el->[0] . " Dump=" .  Dumper $sub_el);
@@ -454,7 +454,7 @@ returns $self
     }
     my %sql_pass =(); ### hash with pass through, means this is not  the last element in the tree
     my %sql_here =(); ### hash with sql to map here - tree leaf
-    # preprocessing sql config if   it exists for thsi element
+    # preprocessing sql config if   it exists for this element
     if($element->{sql}) {
         foreach my $table (keys %{$element->{sql}}) {
             foreach my $field (keys %{$element->{sql}->{$table}}) {
@@ -528,8 +528,8 @@ Object fields are:
 
 The constructor accepts only single parameter, it could be a hashref with keyd  parameters hash  or DOM of the  '$name' element
 Alternative way to create this object is to pass hashref to this hash: { xml => <xml string> }
-Please remeber that namesapce prefix is used as namespace id for mapping which not how it was intended by XML standard. The consequence of that
-is if you serve some XML on one end of the webservices piepline then the same namespace prefixes MUST be used on ther one for the same namespace URNs.
+Please remember that namespace prefix is used as namespace id for mapping which not how it was intended by XML standard. The consequence of that
+is if you serve some XML on one end of the webservices pipeline then the same namespace prefixes MUST be used on the one for the same namespace URNs.
 This constraint can be fixed in the future releases.
 
 Note: this class utilizes L<Log::Log4perl> module, see corresponded docs on CPAN.
@@ -650,12 +650,21 @@ sub new {
 sub getDOM {
     my (\$self, \$parent) = \@_;
     my \$$name;
-    eval {
-         \$$name = getElement({name =>   \$LOCALNAME, parent => \$parent , ns  => [\$self->get_nsmap->mapname(\$LOCALNAME)],
-                                attributes => [
+    eval { 
+        my \@nss;    
+        unless(\$parent) {
+            my \$nsses = \$self->registerNamespaces(); 
+            \@nss = map {\$_  if(\$_ && \$_  ne  \$self->get_nsmap->mapname( \$LOCALNAME ))}  keys \%{\$nsses};
+            push(\@nss,  \$self->get_nsmap->mapname( \$LOCALNAME ));
+        } 
+        push  \@nss, \$self->get_nsmap->mapname( \$LOCALNAME ) unless  \@nss;
+        \$$name = getElement({name =>   \$LOCALNAME, 
+	                      parent => \$parent,
+			      ns  =>    \\\@nss,
+                              attributes => [
 ");
 
-#------------------------------- generate serialization ofr each attribute
+#------------------------------- generate serialization for each attribute
 
     foreach my $attr (@attributes) {
         print("_printConditional:: $attr = " . $element->{attrs}->{$attr})  if $self->DEBUG;
@@ -755,7 +764,7 @@ sub add\u${subname} {
  removes specific element from the array of ${subname} elements by id ( if id is supported by this element )
  Accepts:  single param - id - which is id attribute of the element
  
- if there is no array then it will return undef and warninig
+ if there is no array then it will return undef and warning
  if it removed some id then \$id will be returned
 
 \=cut
@@ -806,7 +815,7 @@ sub get\u${subname}ById {
 
 \=head2  querySQL ()
 
- depending on SQL mapping decalration it will return some hash ref  to the  decalred fields
+ depending on SQL mapping declaration it will return some hash ref  to the  declared fields
  for example querySQL ()
  
  Accepts one optional parameter - query hashref, it will fill this hashref
@@ -862,7 +871,7 @@ sub  querySQL {
             foreach my \$el (\@array) {
                 if(blessed \$el && \$el->can('querySQL'))  {
                     \$el->querySQL(\$query);
-                    \$self->get_LOGGER->debug("Quering $name  for subclass \$subname");
+                    \$self->get_LOGGER->debug("Querying $name  for subclass \$subname");
                 } else {
                     \$self->get_LOGGER->logdie("Failed for $name Unblessed member or querySQL is not implemented by subclass \$subname");
                 }
@@ -956,7 +965,7 @@ sub asString {
 \=head2 registerNamespaces ()
 
  will parse all subelements
- returns reference to hash with namespace prfixes
+ returns reference to hash with namespace prefixes
  
  most parsers are expecting to see namespace registration info in the document root element declaration
 
@@ -1352,7 +1361,7 @@ sub _printGetDOM {
 #
 #    auxiliary private function
 #    will parse conditional string and return  regexp and  logical condition
-#    accepted parameter: $value is a  string to parse where EBNF decalaration is:
+#    accepted parameter: $value is a  string to parse where EBNF declaration is:
 #       value =  ('scalar'| 'enum'|'set'|'if'|'unless'|'exclude') ':' (string ( ','  string)*)
 #    will return hashref with  the resulted hash with keys:
 #       {condition  => <left part of the ':'>,
@@ -1383,7 +1392,7 @@ sub _conditionParser {
 #   analyze condition and return conditional string to be used in getDOM|fromDOM printing calls
 #   accepted parameters: $key - [<attribute name> | 'text'],
 #                        $value - condition to parse by _conditionParser,
-#                        $what -  ['get' | 'from'] - to distinguish fromDom and getDOm
+#                        $what -  ['get' | 'from'] - to distinguish fromDom and getDOM
 #
 #
 #
@@ -1413,7 +1422,7 @@ sub  _printConditional {
                                  "    \$self->$what\_$key($fromDomArg) if($fromDomArg && $regexp);\n";
 
     } else {
-        croak("Malfromed , uknown condition=" . $condition->{condition} );
+        croak("Malformed , unknown condition=" . $condition->{condition} );
     }
 
     return $string;
@@ -1675,7 +1684,7 @@ registered namespaces throughout the API
 
 \=head2 new({})
 
- new  - constructor, accepts single paramter - hashref with the hash of:
+ new  - constructor, accepts single parameter - hashref with the hash of:
  
  <element_name> =>  <URI>,..., <element_name> =>  <URI>  #  mapped element on ns hashref
  
@@ -1713,7 +1722,7 @@ sub new {
 
     maps localname on the prefix
     accepts:
-        with single paramter ( element name ) it will return
+        with single parameter ( element name ) it will return
        namespace prefix  and with two parameters it will map  namespace prefix
     to specific element name
     and without parameters it will return the whole namespaces hashref
@@ -1752,7 +1761,7 @@ with this software.  If not, see <http://fermitools.fnal.gov/about/terms.html>
 
 =head1  COPYRIGHT
 
-Copyright(c) 2007-2008, Fermi Reasearch Alliance (FRA)
+Copyright(c) 2007-2008, Fermi Research Alliance (FRA)
 
 =cut
  

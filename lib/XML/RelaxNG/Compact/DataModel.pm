@@ -2,7 +2,7 @@ package   XML::RelaxNG::Compact::DataModel;
  
 use strict;
 use warnings;
-use version; our $VERSION = '0.07';  
+use version; our $VERSION = '0.08';  
 
 =head1 NAME
 
@@ -11,12 +11,12 @@ XML::RelaxNG::Compact::DataModel -  RelaxNG Compact L<http://relaxng.org/compact
 
 =head1 VERSION
 
-Version 0.07 
+Version 0.08 
 
 =head1 DESCRIPTION
 
 This is a user's guide module for documentation only. It describes the perlish expression of 
-the  RelaxNG Compact schema.  Some limitations are: 
+the  RelaxNG Compact schema.  Some limitations are (please see RelaxNG standard for reference): 
 
 =over
 
@@ -90,7 +90,7 @@ Where each <xxxx-definition> can be expressed in EBNF  as:
 
 =back
 
-In the attributes definition the xmlns attribute is reserved for the namespace prefix.
+In the attributes definition the C<xmlns> attribute is reserved for the namespace prefix.
 This name must be registered within Namespace class in order to provide some level of validation. 
 This constraint will be fixed in future releases.
 Its recommended to have unique C<id> attribute in each element, it will allow to utilize mapping by C<id> for the complex element types.
@@ -130,8 +130,7 @@ For example C<unless:value> conditional statement will be translated into the pe
 C<< && !($self->value) >> where value must be registered attribute or sub-element name and this 
 condition will be placed in every piece of code where perl object is serialized into the XML DOM object or from it. 
 
-B<Note:> You have to define element bottom-to-top in order for them to "know" about each other.
-   
+
 =head1 SYNOPSIS
       
      
@@ -289,6 +288,109 @@ data structures and then somewhere in the building script add any extra sql mapp
 element definitions with new data structure.  Of course you can mix elements with the same names from the different namespaces,
 just name them differently but  it would be easier to define them in separate data model packages. 
 
+B<Note:> You have to define element bottom-to-top in order for them to "know" about each other.
+The most common design pattern here is to define your C<base> schema with some strategically placed schema extending 
+C<containers>. For example:
+ 
+    package MyBase;
+    use strict;
+    use warnings;
+    use Exporter ();
+    use base qw/Exporter/;
+    our @EXPORT_OK = qw/$extended $base_parameter $parameters/;
+
+
+    our($base_parameter, $parameters);
+    $base_parameter = {attrs  => {name => 'enum:name1,name2',  value => 'scalar',  xmlns => 'nsid'},
+		       elements => [],
+        	       text => 'unless:value',
+        	     }; 
+
+
+    # addExtra is closure based callback, intialized with  $base_parameter
+    sub addExtra {  
+	my $extras = [[$base_parameter]];
+	return sub {
+                    push @{$extras}, [@_] if @_;
+	            return $extras
+		   }
+    }
+    # define $parameters with $extended placeholder for adding extra variations of the parameter
+    our $extended =  addExtra();
+    $parameters   =  {attrs  => { xmlns => 'nsid'},
+		      elements => [
+        			    parameter =>  $extended->()],
+        			 ],
+        	     };
+
+
+
+    package  ExtendedBase1;
+    use strict;
+    use warnings;
+    use Exporter ();
+    use  base  qw/Exporter MyBase/;
+
+    our @EXPORT_OK =  qw/$extended   $parameters/;
+
+    ### notice different namespace, if you set the same one it will overwrite the former one.
+    $extended->({attrs  => {ext_name => 'scalar',  ext_value => 'scalar',  xmlns => 'nsid1'},
+		       elements => [],
+        	       text => 'unless:ext_value',
+        	     }); 
+
+    package  ExtendedBase2;
+    use strict;
+    use warnings;
+    use Exporter ();
+    use base  qw/Exporter ExtendedBase1/; 
+    our @EXPORT_OK =  qw/$extended  $parameters/;
+
+    ### notice different namespace, if you set the same one it will overwrite the former one.
+    $extended->({attrs  => {another_name => 'scalar',  another_value => 'scalar',  xmlns => 'nsid2'},
+		       elements => [],
+        	       text => 'unless:another_value',
+        	     }); 
+
+    package main;
+
+    use strict;
+    use warnings;
+    use Data::Dumper;
+    use POD::Credentials;
+    use XML::RelaxNG::Compact::PXB;
+    use base qw/ExtendedBase2/; 
+
+    ## adding some sql mapping for base_parameter
+    $base_parameter->{sql}  = { tableName => { field1 => { value => ['value' , 'text'],
+                                                      if => 'name:name1'
+                                                    },
+                                	   field2 => { value => ['value' , 'text'], 
+                                                      if => 'name:name2'},
+                                	}    
+			 };  
+    #
+    # creating API
+    #
+ 
+
+    my $api_builder =  XML::RelaxNG::Compact::PXB->new({
+             		                        	 top_dir =>   './',
+             		                        	 datatypes_root =>   "XMLTypes",
+             		                        	 nsregistry => { 'nsid1' => 'http://some.org/nsURI'}, 
+             		                        	 schema_version =>   '1.0', 
+             		                        	 test_dir =>   't',	  
+             		                        	 footer => POD::Credentials->new({author=> 'Joe Doe'}),
+             				               });
+
+    $api_builder->buildAPI('myParameters', $parameters);
+
+   1;
+
+  
+      
+  
+  
 =head1 AUTHOR
 
 Maxim Grigoriev, maxim at fnal_gov
