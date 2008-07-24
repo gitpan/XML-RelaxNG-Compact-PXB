@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.08';
+use version; our $VERSION = '0.09';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =head1 DESCRIPTION
 
@@ -54,14 +54,15 @@ See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
                                             top_dir =>   "/topdir/",
                                             nsregistry => $nsreg,
                                             datatypes_root =>   "Datatypes,
+					    project_root => 'API,
                                             schema_version =>   "1.0",
                                             test_dir =>   "/topdir/t"});
 
       #### this call will build everything - API,tests, helper modules
       #### where  name parameter is the name of your root element  - "nsid:mymodel"
       #
-      #   it will create versioned API under /topdir/Datatypes/v1_0/nsid/ for nsid namespace prefix
-      #  and /topdir/Datatypes/v1_0/nsid2/ for nsid2 namespace prefix
+      #   it will create versioned API under /topdir/API/Datatypes/v1_0/nsid/ for nsid namespace prefix
+      #  and /topdir/API/Datatypes/v1_0/nsid2/ for nsid2 namespace prefix
       #
       
       $api_builder->buildAPI('mymodel', $model);
@@ -73,7 +74,7 @@ See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
 
       ####
 
-      #### this call will build only Helper modules under /topdir/Datatypes/v1_0/ -  namespace prefix mapping, basic element operations
+      #### this call will build only Helper modules under /topdir/API/Datatypes/v1_0/ -  namespace prefix mapping, basic element operations
       ####
       
       $api_builder->buildHelpers();
@@ -93,7 +94,7 @@ use POD::Credentials;
 use Class::Accessor::Fast;
 use Class::Fields;
 use base qw(Class::Accessor::Fast Class::Fields);
-use fields qw(debug top_dir datatypes_root schema_version test_dir footer nsregistry _schema_version_dir  _TESTS  _fh _fhtest  _path  _root _known_class _existed DEBUG);
+use fields qw(debug top_dir datatypes_root project_root schema_version test_dir footer nsregistry _schema_version_dir  _TESTS  _fh _fhtest  _path  _root _known_class _existed DEBUG);
 XML::RelaxNG::Compact::PXB->mk_accessors(XML::RelaxNG::Compact::PXB->show_fields('Public'),'_fh', '_fhtest', '_TESTS');
 
 =head2 new({})
@@ -121,6 +122,12 @@ B<Default:> just XSD and XSI namespaces
 
 B<datatypes_root> - name of the generated datatypes directory
 B<Default:> I<XMLTypes>
+
+=item
+
+B<project_root> - name of the API project directory, all packages will have naming beginning with this one
+B<Default:> I<API>, with B<datatypes_root> default value every package will have API::XMLTYpes:: pre-fix
+
 
 =item
 
@@ -153,6 +160,7 @@ Possible ways to call B<new()>:
                                             top_dir =>   "/root/",
                                             datatypes_root =>   "XMLTypes",
                                             nsregistry => { 'nsid' => 'nsURI'},
+					    project_root => 'API,
                                             schema_version =>   "1.0",
                                             test_dir =>   "t",
                                             footer => POD::Credentials->new({author=> 'Joe Doe'}),
@@ -175,8 +183,10 @@ sub new {
     
     $self->top_dir("$FindBin::Bin");
     $self->datatypes_root("XMLTypes");
+    $self->project_root("API");
     $self->schema_version("1.0");
     $self->footer(POD::Credentials->new());
+    $self->DEBUG(-1);
     $self->test_dir("/t");
     ### private fields initialization
     $self->{_known_class} ={}; ## namespace/element specific lookup table for already created classes
@@ -185,12 +195,12 @@ sub new {
     if ($param  && ref($param) ne 'HASH') {
         croak("ONLY hash ref accepted as param and not: " . Dumper $param );
     }
-    map {$self->{$_} = $param->{$_} if $self->can($_)} keys %{$param};   ###
+    map {$self->{$_} = $param->{$_} if $self->can($_) && $param->{$_} } keys %{$param};   ###
     (my $version = $self->schema_version) =~ s/v//i;
     $self->schema_version(qv("$version"));
     $version =~ s/\./_/g;
     $self->{_schema_version_dir} = "v$version"; 
-    $self->test_dir($self->top_dir . "/" . $self->test_dir);
+    ##$self->test_dir($self->top_dir . "/" . $self->test_dir);
     if($self->nsregistry && ref($self->nsregistry) eq 'HASH') {
         $self->nsregistry({%{$self->nsregistry}, %{$XSD_NS}});
     } else {
@@ -213,11 +223,12 @@ sub new {
 sub  _makeAPIPath {
     my ($self, $classname,  $ns) = @_;
     my $classnameUP = ucfirst($classname);
-    print "ROOT=    ::$ns" . $self->_packagePath . "::$classnameUP\n" if $self->DEBUG;
-    unless ( $self->{_existed}->{$self->datatypes_root . "::" . $self->{_schema_version_dir} . "::$ns". $self->_packagePath . "::$classnameUP"}) {
-        push @{$self->{_path}}, $classnameUP;
-        $self->{_existed}->{$self->datatypes_root . "::" .  $self->{_schema_version_dir} . "::$ns" . $self->_packagePath} =  $classname;
-        $self->{_known_class}->{$classname}{$ns} = $self->datatypes_root . "::" . $self->{_schema_version_dir}  . "::$ns" . $self->_packagePath ;       
+    print "MakePath:  ::$ns  packagepath=" . $self->_packagePath . "  classnameUP=$classnameUP\n" if $self->DEBUG > 1;
+    push @{$self->{_path}}, $classnameUP;
+    unless ( $self->{_existed}->{$self->project_root . "::" . $self->datatypes_root . "::" . $self->{_schema_version_dir} . "::$ns". $self->_packagePath  }) {
+     
+        $self->{_existed}->{$self->project_root . "::" . $self->datatypes_root . "::" .  $self->{_schema_version_dir} . "::$ns" . $self->_packagePath} =  $classname;
+        $self->{_known_class}->{$classname}{$ns} =  $self->project_root . "::" . $self->datatypes_root . "::" .$self->{_schema_version_dir}  . "::$ns" . $self->_packagePath ;       
     }
     return $self;
 }
@@ -281,45 +292,48 @@ returns $self
 =cut
 
 sub buildAPI {
-    my ($self, $name, $element, $parent) = @_;
-   
+    my ($self, $param) = @_;
+    my $name = $param->{name};
+    my $element =  $param->{element};
+    my $parent  =  $param->{parent};
     $self->_printHelpers unless $parent;
-     
+    
     my $ns = $element->{attrs}->{xmlns};
+    croak(" Malformed definition: something is  missing name=$name  ns=$ns  element=" .  Dumper $element  ) unless $name && $ns && $element;  
     $self->_makeAPIPath($name,  $ns);
     if($element && ref($element) eq 'HASH' &&  $element->{attrs})  {
         if(ref($element->{elements}) eq 'ARRAY') {
-            mkpath([ $self->top_dir ."/". $self->datatypes_root . "/" . $self->{_schema_version_dir} . "/$ns". $self->_dirPath], 1, 0755) unless $self->_TESTS;
+            mkpath([ $self->top_dir . "/" . $self->project_root . "/". $self->datatypes_root .  "/"  .$self->{_schema_version_dir} . "/$ns". $self->_dirPath], 1, 0755) unless $self->_TESTS;
         }
         ###  
         foreach my $el (@{$element->{elements}}) {
             if(ref($el) eq 'ARRAY') {
                 if(ref($el->[1]) eq 'HASH' && $el->[1]->{attrs}) {
-                    $self->buildAPI($el->[0],  $el->[1], $element); 
+                    $self->buildAPI({name => $el->[0],  element => $el->[1], parent => $element}); 
                 } elsif(ref($el->[1]) eq 'ARRAY') {
                     foreach my $sub_el (@{$el->[1]}) { ### if right part is arrayref - means choice between elements
-                        if(ref($sub_el) eq 'HASH' && $sub_el->{attrs}) { # choice between single elements
-                            $self->buildAPI($el->[0], $sub_el,  $element );
+                        next unless $sub_el;
+			if(ref($sub_el) eq 'HASH' && $sub_el->{attrs}) { # choice between single elements
+                            $self->buildAPI({name => $el->[0],  element => $sub_el, parent => $element});
                         } elsif(ref($sub_el) eq 'ARRAY' && scalar @{$sub_el} == 1) {  # choice between multiple
-                            $self->buildAPI($el->[0],   $sub_el->[0],    $element  );
+                            $self->buildAPI({name => $el->[0],  element => $sub_el->[0], parent => $element});
                         } else {
-                            croak(" Malformed definition: name=" . $el->[0] . " Dump=" .  Dumper $sub_el);
+                            croak(" Malformed definition: name=" . $el->[0] ." sub_el Dump=" . Dumper($sub_el) . " el Dump=" .  Dumper  $el );
                         }
                     }
                 }
             }
         }
  
-        $self->buildClass($name, $element, $parent);
+       $self->buildClass($name, $element, $parent) if defined $self->_dirPath && defined $self->_packagePath;
+       # if empty directory was created, then remove it
+       my $child_dir =  $self->top_dir ."/". $self->project_root . "/". $self->datatypes_root . "/" . $self->{_schema_version_dir} . "/$ns". $self->_dirPath;
+       rmdir $child_dir  if( -d   $child_dir); 
+       pop @{$self->{_path}} if  defined $self->_dirPath && defined $self->_packagePath;   
     } else {
-        carp("ended up in non element");
+        croak("Malformed definition: ended up in non element");
     }
-    # if empty directory was created, then remove it
-    my $child_dir =  $self->top_dir ."/". $self->datatypes_root . "/" . $self->{_schema_version_dir} . "/$ns". $self->_dirPath;
-    rmdir $child_dir  if( -d   $child_dir);
    
-    pop @{$self->{_path}};
-    
     return $self;
 }
 
@@ -425,9 +439,9 @@ returns $self
     my ($self, $name, $element, $parent) = @_;
     # current path
     my $ns = $element->{attrs}->{xmlns};
-    my $path = $self->top_dir ."/". $self->datatypes_root . "/" . $self->{_schema_version_dir} . "/$ns" . $self->_dirPath;
+    my $path = $self->top_dir ."/".  $self->project_root . "/". $self->datatypes_root . "/" . $self->{_schema_version_dir} . "/$ns" .  $self->_dirPath;
     # current classname
-    my $root =  $self->datatypes_root . "::" . $self->{_schema_version_dir}  . "::$ns". $self->_packagePath;
+    my $root =  $self->project_root . "::". $self->datatypes_root . "::" . $self->{_schema_version_dir}  . "::$ns".  $self->_packagePath;
     my $className =   $root;
 
 #--------------------------- some preparatory work here, lists of element names, attributes, text elements -----------
@@ -489,7 +503,8 @@ returns $self
     $self->_fh(IO::File->new($path . ".pm","w+"));
     croak(" Failed to open file :" . $path . ".pm")  unless $self->_fh;
 
-    print("\n...  Attributes: $attributes_names \n Texts: $texts_names \n Elements: $elements_names\n") if $self->DEBUG;
+    print("\n Classname: $path ...  Attributes: $attributes_names \n Elements: $elements_names\n") if $self->DEBUG > 0;
+    print(" Config:" . Dumper $element) if $self->DEBUG>2;
 #----------------------------------------------
     my $version = $self->schema_version;
 #--------------------------------------------
@@ -563,7 +578,7 @@ use Readonly;
     /);
 
 ####printing  namespace specific helper classes
-    my $localized_path =   $self->datatypes_root . "::" . $self->{_schema_version_dir};
+    my $localized_path =  $self->project_root . "::" . $self->datatypes_root . "::" . $self->{_schema_version_dir};
     $self->sayIt("use $localized_path\::Element qw(getElement);");
     $self->sayIt("use $localized_path\::NSMap;");
 
@@ -667,7 +682,7 @@ sub getDOM {
 #------------------------------- generate serialization for each attribute
 
     foreach my $attr (@attributes) {
-        print("_printConditional:: $attr = " . $element->{attrs}->{$attr})  if $self->DEBUG;
+        print("_printConditional:: $attr = " . $element->{attrs}->{$attr})  if $self->DEBUG> 2;
         $self->sayIt($self->_printConditional($attr, $element->{attrs}->{$attr}, 'get'));
     }
     $self->sayIt("                                               ],"); # end for attributes
@@ -1012,43 +1027,52 @@ sub registerNamespaces {
 sub fromDOM {
     my (\$self, \$dom) = \@_;
 /);
-    print("  fromDOM for: name=$name ") if $self->DEBUG;
+    print("  fromDOM for: name=$name ") if $self->DEBUG>2;
     foreach my $attr (@attributes) {
+        print("  fromDOM for:  "  . Dumper $element->{attrs}) if $self->DEBUG>2;
         $self->sayIt($self->_printConditional($attr, $element->{attrs}->{$attr}, 'set'));
         $self->sayIt("    \$self->get_LOGGER->debug(\" Attribute $attr= \". \$self->get_$attr) if \$self->get_$attr;");
     }
     $self->sayIt($self->_printConditional('text', $element->{text}, 'set')) if ($element->{text});
     if(@elements) {
-        $self->sayIt("    foreach my \$childnode (\$dom->childNodes) {");
-        $self->sayIt("        my  \$getname  = \$childnode->getName;");
-        $self->sayIt("        my (\$nsid, \$tagname) = split \$COLUMN_SEPARATOR, \$getname;");
-        $self->sayIt("        next unless(\$nsid && \$tagname);");
-        my $conditon_head =  '        if';
+        $self->sayIt(qq/    foreach my \$childnode (\$dom->childNodes) {
+        my  \$getname  = \$childnode->getName;
+        my (\$nsid, \$tagname) = split \$COLUMN_SEPARATOR, \$getname;
+        next unless(\$nsid && \$tagname);
+	my \$element;
+	/);
+        my $conditon_head =  '     if';
         foreach my $els (@elementnodes) {
             croak(" Element must be an array ref here: name=$name els=$els ") unless ref($els) eq 'ARRAY';
+	    print " fromDOM subelement: " . Dumper $els if $self->DEBUG > 3;
             my $subname =  $els->[0];
             my  $condition  =  _conditionParser($els->[2]);
             $condition->{logic} .= " && " if  $condition->{logic};
+	    print " fromDOM choice sub_subelement: " . Dumper  $els->[1]  if $self->DEBUG > 3;
             if(ref($els->[1]) eq  'ARRAY') {
                 if(scalar @{$els->[1]} >  1)  {
                     foreach my $choice (@{$els->[1]}) {
+		   
                         if(ref($choice) ne  'ARRAY') {
                             $self->_printFromDOM($subname, $choice, 'CHOICE', $conditon_head, $condition->{logic});
-                            $conditon_head = ' elsif';
+                            $conditon_head = '     elsif';
                         } elsif(scalar @{$choice} ==  1 ) {
                             $self->_printFromDOM($subname, $choice->[0], 'ARRAY', $conditon_head, $condition->{logic});
-                            $conditon_head = ' elsif';
+                            $conditon_head = '     elsif';
                         } else {
                             croak(" Malformed element definition: name=$name subelement=$subname");
                         }
                     }
                 } else {
-                    $self->_printFromDOM($subname, $els->[1]->[0], 'ARRAY',$conditon_head, $condition->{logic});
+		    my $sub_el =  ref $els->[1]->[0] eq 'ARRAY'?$els->[1]->[0]->[0]:$els->[1]->[0];
+		    
+		    print " fromDOM 0 from sub_subelement: " . Dumper  $els->[1]->[0]  if $self->DEBUG > 3;
+                    $self->_printFromDOM($subname,  $sub_el, 'ARRAY',$conditon_head, $condition->{logic});
                 }
             } elsif (ref($els->[1])  eq  'HASH') {
                 $self->_printFromDOM($subname,$els->[1], 'HASH',$conditon_head, $condition->{logic});
             }
-            $conditon_head = ' elsif';
+            $conditon_head = '     elsif';
         }
         if(@textnodes) {
             $self->sayIt(" $conditon_head (\$childnode->textContent && \$self->can(\"get_\$tagname\")) {");
@@ -1073,9 +1097,10 @@ sub fromDOM {
 #
 sub _placeCritidy {
     my ($self) = @_;
-    my $basename =  $self->test_dir . '/conf';
-    $self->_fh(IO::File->new( "$basename/perltidyrc",'w+'));
-    $self->sayIt(qq{# PBP .perltidyrc file
+    my $basename =  $self->top_dir . '/' . $self->test_dir . '/conf';
+    unless( -e  "$basename/perltidyrc") {
+        $self->_fh(IO::File->new( "$basename/perltidyrc",'w+'));
+        $self->sayIt(qq{# PBP .perltidyrc file
 
 -i=4	# Indent level is 4 cols
 -ci=4	# Continuation indent is 4 cols
@@ -1096,11 +1121,12 @@ sub _placeCritidy {
 -nolq	# Don't outdent long quoted strings
 -wbb="% + - * / x != == >= <= =~ !~ < > | & >= < = **= += *= &= <<= && += -= /= |= >>= ||= .= %= ^= x="
             # Break before all operators
-    });
+        });
+    }
+    unless( -e  "$basename/perlcritic") {
+      $self->_fh(IO::File->new("$basename/perlcritic",'w+')); 
     
-    $self->_fh(IO::File->new("$basename/perlcritic",'w+')); 
-    
-    $self->sayIt(qq{
+       $self->sayIt(qq{
     severity = 2
     only = 1
     theme = (pbp + core + bugs + readability)
@@ -1147,7 +1173,8 @@ sub _placeCritidy {
     [-CodeLayout::ProhibitParensWithBuiltins]
     [-CodeLayout::ProhibitTrailingWhitespace] 
     #--------------------------------------------------------------
-    });
+       });
+    }
     return;
 }
 
@@ -1173,22 +1200,23 @@ sub _placeCritidy {
 sub buildTest {
     my ($self, $elementnodes, $attributes, $className, $name, $element) = @_;
     
-    
-    mkpath   ([ $self->test_dir ], 1, 0755);
-    mkpath   ([ $self->test_dir . '/conf'], 1, 0755);
-    print " Creating perlcritic and perltidyrc config files ... " if $self->DEBUG;
+    my $relative_path = $self->top_dir . '/'.  $self->test_dir;
+    mkpath   ([  $relative_path  ], 1, 0755);
+    mkpath   ([  "$relative_path/conf"], 1, 0755);
+    print " Creating perlcritic and perltidyrc config files ... " if $self->DEBUG > 0;
     $self->_placeCritidy();
-    print " Creating simple test.pl file " if $self->DEBUG;
-    
-    $self->_fh(IO::File->new($self->test_dir . "/../test.pl" ,"w+"));
-    $self->sayIt(qq{use strict;
+    print " Creating simple test.pl file " if $self->DEBUG > 0;
+    unless(-e  $self->top_dir . "/test.pl") {
+        $self->_fh(IO::File->new( $self->top_dir . "/test.pl" ,"w+"));
+        $self->sayIt(qq{use strict;
 use warnings;
 
 use Test::Harness;
-use File::Basename;
  
+use FindBin qw(\$Bin);   
 BEGIN \{
-   unshift \@INC, dirname(dirname(\$0)); 
+   unshift \@INC, "\$Bin" ; 
+   unshift \@INC, "\$Bin/../";  
 \};
  
 
@@ -1197,12 +1225,12 @@ if (\$ARGV[0] && \$ARGV[0] eq '-v') \{
   shift \@ARGV;
 \}
 
-my \$test_dir = dirname(\$0) . '/t';
-Test::Harness::runtests(<\$test_dir/*.t>);
+Test::Harness::runtests(<\$Bin/t/*.t>);
 }); 
-    print " Creating test suit... " if $self->DEBUG;
-    $self->_fh(IO::File->new($self->test_dir . "/$className.t" ,"w+"));
-    croak(" Failed to open test suite file: ". $self->test_dir . "/$className.t")  unless $self->_fh;
+    }
+    print " Creating test suit... " if $self->DEBUG > 0;
+    $self->_fh(IO::File->new("$relative_path/$className.t" ,"w+"));
+    croak(" Failed to open test suite file: $! $relative_path/$className.t")  unless $self->_fh;
     my $test_number = 2;
     
     my $ns = $element->{attrs}->{xmlns};
@@ -1211,12 +1239,12 @@ Test::Harness::runtests(<\$test_dir/*.t>);
 use warnings;
 use strict;
 use Test::More;
-use Data::Dumper; 
-use FindBin qw(\$Bin);  
+use Data::Dumper;  
+use FindBin qw(\$Bin); 
 use Log::Log4perl qw(:easy :levels); 
 use English qw( -no_match_vars);
 /);
-    $self->sayIt('use Test::Perl::Critic (-severity => 3, -verbose => 4,  -profile => "' . $self->test_dir . '/conf/perlcritic");');
+    $self->sayIt('use Test::Perl::Critic (-severity => 3, -verbose => 4,  -profile => "$Bin/conf/perlcritic");');
     $self->sayIt(qq/
 
 ## see BEGIN block at the bottom for the number of tests and use_ok package check
@@ -1224,25 +1252,28 @@ use English qw( -no_match_vars);
 Log::Log4perl->easy_init(\$ERROR);   
 /);
 
-
-    foreach my $el (@{$elementnodes}) {
-        foreach my $ns (keys %{$self->{_known_class}->{$el->[0]}}) {
-	    if($self->{_known_class}->{$el->[0]}{$ns}) {
-                $self->sayIt("use_ok '" . $self->{_known_class}->{$el->[0]}{$ns} . "';");
+    my @element_names = map {$_->[0]}  @{$elementnodes};
+    foreach my $el (@element_names) {
+        foreach my $ns (keys %{$self->{_known_class}->{$el}}) {
+	    if($self->{_known_class}->{$el}{$ns}) {
+                $self->sayIt("use_ok '" . $self->{_known_class}->{$el}{$ns} . "';");
 		$self->sayIt("#", $test_number++);
             }
         }
     }
     $self->sayIt("#", $test_number++);
    
-    $self->sayIt('critic_ok("' .  $self->top_dir ."/". $self->datatypes_root . "/" . 
+    $self->sayIt('critic_ok("$Bin/../' .  $self->project_root . "/" . $self->datatypes_root . "/" . 
                                   $self->{_schema_version_dir} . "/$ns" .  
 				  $self->_dirPath . '.pm", "perl critic have not found any problems") 
 	            or diag(" perl critic found problems ");');
   
+    
+    my $accessors =   'get_nsmap get_idmap ' . join(' ',  map{"get_$_"}  @{$attributes}, @element_names);
+     
     $self->sayIt("#", $test_number++);
-    my $accessors =  'get_' . (join ' get_', @{$attributes}, map {$_->[0]} @{$elementnodes});
     $self->sayIt("can_ok($className->new(), qw/$accessors/);");
+     
     $self->sayIt(qq/
 
 my \$obj1 = undef;
@@ -1377,7 +1408,7 @@ sub _conditionParser {
     $result->{condition} = $1;
     my @list  = split ",", $value  unless $result->{condition} eq 'scalar';
     if(@list) {
-        $result->{logic}  =  "(\$self->get_" . (join " && \$self->", @list) . ")";
+        $result->{logic}  =  "(\$self->get_" . (join " && \$self->get_", @list) . ")";
         $result->{regexp} = " =~ m/(" . (join "|", @list) . ")\$/";
         if($result->{condition}  eq 'unless') {
             $result->{logic}  = "!".  $result->{logic};
@@ -1406,7 +1437,7 @@ sub  _printConditional {
     my $fromDomArg = ($key ne 'text')?"\$dom->getAttribute('$key')":"\$dom->textContent";
 
     my  $condition  = _conditionParser($value);
-    print("$value Enum List:: " . ( join ":", map { " $_= " . $condition->{$_}} keys  %{$condition})) if $self->DEBUG && !$condition->{condition}  eq 'scalar';
+    print("$value Enum List:: " . ( join ":", map { " $_= " . $condition->{$_}} keys  %{$condition})) if $self->DEBUG > 0 && !$condition->{condition}  eq 'scalar';
 
     if($condition->{condition}   eq 'scalar') {
         $string =   $what eq 'get'?"                                                     $arrayref_signleft'$key' =>  \$self->$what\_$key$arrayref_signright,\n":
@@ -1472,9 +1503,9 @@ sub _getSQLSub {
 sub _printFromDOM {
     my ($self, $subname, $el, $type, $conditon_head, $cond_string) = @_;
     my  $subnameUP =  ucfirst($subname);
-    print("Building fromDOM: type=$type subname=$subname") if $self->DEBUG;
+    my $ns = $el->{'attrs'}{'xmlns'};
+    print "Building fromDOM: type=$type subname=$subname   head=$conditon_head  string=$cond_string ns=$ns  class=" . $self->{_known_class}->{$subname}{ $ns } ."\n" if $self->DEBUG > 2;
     $self->sayIt("   $conditon_head ($cond_string\$tagname eq  '$subname' && \$nsid eq '".  $el->{'attrs'}{'xmlns'}  ."' && \$self->can(\"get_\$tagname\")) {");
-    $self->sayIt("                my \$element = undef;");
     $self->sayIt("                eval {");
     $self->sayIt("                    \$element = " . $self->{_known_class}->{$subname}{$el->{'attrs'}{'xmlns'}} . "->new(\$childnode)");
     $self->sayIt("                };");
@@ -1523,9 +1554,9 @@ sub sayIt {
 
 sub _printHelpers {
     my ($self) = @_;
-    my $root_package =   $self->datatypes_root . '::' . $self->{_schema_version_dir};
-    mkpath   ([ $self->top_dir . "/" .$self->datatypes_root . "/" .  $self->{_schema_version_dir} ], 1, 0755);
-    $self->_fh(IO::File->new( $self->top_dir .  "/" .$self->datatypes_root . "/" .  $self->{_schema_version_dir} ."/Element.pm" ,"w+"));
+    my $root_package =  $self->project_root . '::' .  $self->datatypes_root . '::' . $self->{_schema_version_dir};
+    mkpath   ([ $self->top_dir . '/' . $self->project_root . '/' . $self->datatypes_root . '/' .  $self->{_schema_version_dir} ], 1, 0755);
+    $self->_fh(IO::File->new( $self->top_dir .  "/" . $self->project_root . '/' . $self->datatypes_root . "/" .  $self->{_schema_version_dir} ."/Element.pm" ,"w+"));
     croak("Failed to open Element.pm file")  unless  $self->_fh;
     my $registry_string;   
     foreach my $prefix (keys %{$self->nsregistry}) {
@@ -1632,7 +1663,7 @@ sub  getElement {
                         unless(ref(\$attr->[1]))   {
                             \$data->setAttribute(\$attr->[0], \$attr->[1]);
                         } else {
-                            \$LOGGER->warn("Attempted to create ".\$attr->[0]." with this: ".\$attr->[1]." dump:" . Dumper  \$attr->[1]);
+                            \$LOGGER->warn("Attempted to create ".\$attr->[0]." with this: ".\$attr->[1]." dump:" . sub { Dumper(\$attr->[1])});
                         }
                     }
                 }
@@ -1642,7 +1673,7 @@ sub  getElement {
                     my \$text_el = XML::LibXML::Text->new(\$text);
                     \$data->appendChild(\$text_el);
                 }  else {
-                    \$LOGGER->warn(" Attempted to create text with non scalar: \$text dump:" . Dumper \$text);
+                    \$LOGGER->warn(" Attempted to create text with non scalar: \$text dump:" . sub {Dumper(\$text)});
                 }
             }
     } else {
@@ -1654,7 +1685,7 @@ sub  getElement {
 
     $self->sayIt($self->footer->asString());
  
-    $self->_fh(IO::File->new( $self->top_dir .  "/" .$self->datatypes_root  . "/" .  $self->{_schema_version_dir} . "/NSMap.pm" ,"w+"));
+    $self->_fh(IO::File->new( $self->top_dir .  "/" . $self->project_root .  "/" . $self->datatypes_root  . "/" .  $self->{_schema_version_dir} . "/NSMap.pm" ,"w+"));
     croak(" Failed to open NSMap.pm file")  unless  $self->_fh;
 
     $self->sayIt(qq/package   $nsmap_package;

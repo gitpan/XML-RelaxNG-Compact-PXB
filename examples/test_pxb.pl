@@ -1,3 +1,17 @@
+
+=head1 NAME 
+             
+   test_pxb.pl  - basic example of the data model definitions and API building script utilization
+
+=head1 DESCRIPTION
+
+    run this script, it will create MyAPI directory with all modules and t directory with test files,
+    run perl ./test.pl to test generated API, for more complex example see pinger_schemaPXB.pl
+
+=cut
+
+
+
 package MyBase;
 use strict;
 use warnings;
@@ -15,9 +29,9 @@ $base_parameter = {attrs  => {name => 'enum:name1,name2',  value => 'scalar',  x
 
 # addExtra is closure based callback
 sub addExtra {  
-    my $extras = [[$base_parameter]];
+    my $extras = [$base_parameter];
     return sub {
-                push @{$extras}, [@_] if @_;
+                push @{$extras}, @_ if @_;
 	        return $extras
 	       }
 }
@@ -84,12 +98,14 @@ print Dumper  $parameters;
 my $api_builder =  XML::RelaxNG::Compact::PXB->new({
              		                             top_dir =>   './',
              		                             datatypes_root =>   "XMLTypes",
+             		                             project_root =>   "MyAPI",
              		                             nsregistry => { 'nsid1' => 'http://some.org/nsURI'}, 
              		                             schema_version =>   '1.0', 
-             		                             test_dir =>   't',	  
+             		                             test_dir =>   't',	 
+						     DEBUG => 1, 
              		                             footer => POD::Credentials->new({author=> 'Joe Doe'}),
              				           });
  
-$api_builder->buildAPI('myParameters', $parameters);
+$api_builder->buildAPI({ name => 'myParameters' , element => $parameters});
 
 1;

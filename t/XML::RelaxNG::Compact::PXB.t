@@ -2,12 +2,12 @@ use warnings;
 use strict;    
 use Test::More;
 use English qw( -no_match_vars);
-use FindBin;
+use FindBin qw($Bin);
   
 BEGIN {
    plan tests =>  '6';
    use_ok  'XML::RelaxNG::Compact::PXB';
-   unshift @INC, "$FindBin::Bin/data"; 
+   unshift @INC, "$Bin/data"; 
    use Log::Log4perl qw(:easy :levels); 
    Log::Log4perl->easy_init({
                               level => ERROR,
@@ -16,10 +16,11 @@ BEGIN {
 }
  
 my $element =  {  'attrs'  => {value => 'scalar', type => 'scalar', port => 'scalar',  xmlns => 'nsid'},
-                                                   elements => [], 
-						   text => 'unless:value',
-                    };
- my $model =  {  'attrs'  => {id => 'scalar', type => 'scalar', xmlns => 'nsid'}, 
+                   elements => [], 
+		   text => 'unless:value',
+               };
+	       
+my $model =    {  'attrs'  => {id => 'scalar', type => 'scalar', xmlns => 'nsid'}, 
                   elements => [ 
 		                [subelement => $element]
 			      ], 
@@ -30,8 +31,9 @@ can_ok(XML::RelaxNG::Compact::PXB->new(),qw/buildAPI buildHelpers buildTests say
 my $obj1;
 eval {
     $obj1 =  XML::RelaxNG::Compact::PXB->new({ 
-                                            top_dir =>   "$FindBin::Bin/data", 
+                                            top_dir =>   "$Bin/data", 
 					    nsregistry =>  {'nsid' => 'http://URI/nsid', 'nsid2' => 'http://URI/nsid2'},
+					    project_root => "MyAPI",
                                             datatypes_root =>   "Datatypes",
                                             schema_version =>   "1.0",
 					    test_dir =>   "t",
@@ -44,7 +46,7 @@ undef $EVAL_ERROR;
 
 #4
 eval {
-   $obj1->buildAPI('mymodel', $model); 
+   $obj1->buildAPI({name=>'mymodel', element=>$model}); 
 
 };
 ok(!$EVAL_ERROR, "buildAPI for test model...") or  diag($EVAL_ERROR);
@@ -55,15 +57,16 @@ undef $EVAL_ERROR;
 eval {
 
    my $obj2 = XML::RelaxNG::Compact::PXB->new({ 
-                                            top_dir =>   "$FindBin::Bin/data", 
-					    nsregistry =>  {'nsid' => 'http://URI/nsid', 'nsid2' => 'http://URI/nsid2'},
+                                            top_dir =>   "$Bin/data", 
+					    nsregistry =>  {'nsid' => 'http://URI/nsid', 'nsid2' => 'http://URI/nsid2'}, 
+					    project_root => "MyAPI",
                                             datatypes_root =>   "Datatypes",
                                             schema_version =>   "1.0",
 					    test_dir =>   "t",
 				 	    footer => POD::Credentials->new({author=> 'Joe Doe'})
 					    });
    
-   $obj2->buildTests('mymodel', $model); 
+   $obj2->buildTests({name=>'mymodel', element=>$model}); 
 
 };
 ok(!$EVAL_ERROR, "buildTests for test model...") or  diag($EVAL_ERROR);

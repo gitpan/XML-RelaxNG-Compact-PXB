@@ -12,4 +12,5 @@ doc/pxb-docs.pod
 doc/pxb-docs.html
 examples/logger.conf
 examples/test_pxb.pl
+examples/ps_schemaPXB.pl
 test.pl

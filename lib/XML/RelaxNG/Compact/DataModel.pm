@@ -2,7 +2,7 @@ package   XML::RelaxNG::Compact::DataModel;
  
 use strict;
 use warnings;
-use version; our $VERSION = '0.08';  
+use version; our $VERSION = '0.09';  
 
 =head1 NAME
 
@@ -11,7 +11,7 @@ XML::RelaxNG::Compact::DataModel -  RelaxNG Compact L<http://relaxng.org/compact
 
 =head1 VERSION
 
-Version 0.08 
+Version 0.09 
 
 =head1 DESCRIPTION
 
@@ -347,10 +347,10 @@ C<containers>. For example:
     our @EXPORT_OK =  qw/$extended  $parameters/;
 
     ### notice different namespace, if you set the same one it will overwrite the former one.
-    $extended->({attrs  => {another_name => 'scalar',  another_value => 'scalar',  xmlns => 'nsid2'},
-		       elements => [],
-        	       text => 'unless:another_value',
-        	     }); 
+    $extended->({ attrs  => {another_name => 'scalar',  another_value => 'scalar',  xmlns => 'nsid2'},
+		  elements => [],
+        	  text => 'unless:another_value',
+               }); 
 
     package main;
 
@@ -377,13 +377,14 @@ C<containers>. For example:
     my $api_builder =  XML::RelaxNG::Compact::PXB->new({
              		                        	 top_dir =>   './',
              		                        	 datatypes_root =>   "XMLTypes",
+							 project_dir => 'MyAPI',
              		                        	 nsregistry => { 'nsid1' => 'http://some.org/nsURI'}, 
              		                        	 schema_version =>   '1.0', 
              		                        	 test_dir =>   't',	  
              		                        	 footer => POD::Credentials->new({author=> 'Joe Doe'}),
              				               });
 
-    $api_builder->buildAPI('myParameters', $parameters);
+    $api_builder->buildAPI({name => 'myParameters', element => $parameters});
 
    1;
 

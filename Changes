@@ -1,4 +1,10 @@
 Revision history for PXB
+
+0.09    7/24/2008 mpg
+        fixed several bugs, added package_root option 
+	changed interface to the buildAPI
+        added real life examples with callbacks by closure means
+	
 0.08    7/16/2008 mpg
         added automated namespace registration ( namespaces will pop-up into the
 	top element decalration)
