@@ -1,5 +1,8 @@
 Revision history for PXB
 
+0.10    8/13/2008 mpg
+        fixed major bug with undeclared call in the buildSQL
+
 0.09    7/24/2008 mpg
         fixed several bugs, added package_root option 
 	changed interface to the buildAPI

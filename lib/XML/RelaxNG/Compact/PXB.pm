@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.09';
+use version; our $VERSION = '0.10';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =head1 DESCRIPTION
 
@@ -1469,7 +1469,7 @@ sub  _printConditional {
 #
 sub _getSQLSub {
     my ($sql_fields, $subname, $if_cond) = @_;
-    my $head_string = "                           $if_cond(\$self->$subname && (";
+    my $head_string = "                           $if_cond(\$self->get_$subname && (";
     my $add = ' ';
     foreach my $table (keys %{$sql_fields}) {
         $head_string .= "$add( ";
