@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.11';
+use version; our $VERSION = '0.12';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =head1 DESCRIPTION
 
@@ -633,6 +633,7 @@ sub new {
         }
         if(\$param->{xml}) {
             my \$parser = XML::LibXML->new();
+	    \$parser->expand_xinclude(1);
             my \$dom;
             eval {
                 my \$doc = \$parser->parse_string(\$param->{xml});

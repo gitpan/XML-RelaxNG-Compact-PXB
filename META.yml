@@ -1,7 +1,7 @@
 --- 
 name: XML-RelaxNG-Compact-PXB
 abstract: XML RelaxNG Compact data binding 
-version: 0.11
+version: 0.12
 distribution_type: module
 license: Fermitools
 installdirs: site
@@ -15,7 +15,7 @@ requires:
   File::Path: 0
   FindBin: 0
   Log::Log4perl: 0
-  POD::Credentials: 0.04
+  POD::Credentials: 0.03
   Perl::Critic: 1
   Test::Perl::Critic: 0
   Perl::Tidy: 0

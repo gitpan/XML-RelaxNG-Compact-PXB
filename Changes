@@ -1,5 +1,8 @@
 Revision history for PXB
 
+0.12    9/3/2008 mpg
+        added expand_xinclude to provide support for XIncludes
+
 0.11    9/2/2008 mpg
         fixed bug with wrong accessor 
 

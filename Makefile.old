@@ -18,7 +18,7 @@
 #     NO_META => q[1]
 #     PL_FILES => {  }
 #     PREREQ_PM => { Scalar::Util=>q[0], FindBin=>q[0], Perl::Tidy=>q[0], Test::Perl::Critic=>q[0], XML::LibXML::XPathContext=>q[0.04], File::Path=>q[0], POD::Credentials=>q[0.03], Test::Harness=>q[0], version=>q[0], Data::Dumper=>q[0], Readonly=>q[0], Test::More=>q[0], Perl::Critic=>q[1], fields=>q[0], XML::LibXML=>q[1.58], File::Basename=>q[0], Log::Log4perl=>q[0] }
-#     VERSION => q[0.11]
+#     VERSION => q[0.12]
 #     clean => { FILES=>q[XML-RelaxNG-Compact-PXB-* t/data/*] }
 #     dist => { PREOP=>q[$(PERL) -I. "-MModule::Install::Admin" -e "dist_preop(q($(DISTVNAME)))"] }
 
@@ -60,11 +60,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = XML::RelaxNG::Compact::PXB
 NAME_SYM = XML_RelaxNG_Compact_PXB
-VERSION = 0.11
+VERSION = 0.12
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_11
+VERSION_SYM = 0_12
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.11
+XS_VERSION = 0.12
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -254,7 +254,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = XML-RelaxNG-Compact-PXB
-DISTVNAME = XML-RelaxNG-Compact-PXB-0.11
+DISTVNAME = XML-RelaxNG-Compact-PXB-0.12
 
 
 # --- MakeMaker macro section:
@@ -764,7 +764,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd:
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,11,0,0">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0,12,0,0">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <TITLE>$(DISTNAME)</TITLE>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>XML RelaxNG Compact data binding</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Maxim Grigoriev, maxim_at_fnal_dot_gov</AUTHOR>' >> $(DISTNAME).ppd
