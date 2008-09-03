@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.10';
+use version; our $VERSION = '0.11';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =head1 DESCRIPTION
 
@@ -788,7 +788,7 @@ sub remove\u${subname}ById {
     my (\$self, \$id) = \@_;
     if(ref(\$self->get_$subname) eq 'ARRAY' && \$self->get_idmap->{$subname} &&  exists \$self->get_idmap->{$subname}{\$id}) {
         undef \$self->get_$subname->\[\$self->get_idmap->{$subname}{\$id}\];
-        my \@tmp =  grep { defined \$_ } \@{\$self->$subname};
+        my \@tmp =  grep { defined \$_ } \@{\$self->get_$subname};
         \$self->set_$subname([\@tmp]);
         \$self->buildIdMap; ## rebuild index map
         return \$id;
