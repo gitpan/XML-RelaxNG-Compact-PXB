@@ -1,5 +1,13 @@
 Revision history for PXB
 
+0.13    1/23/2009 mpg
+        removed inc/.author directory
+	updated SYNOPSIS
+	changed test names to avoid 
+	complications under Windows
+	bugs fixed: 40463,40464
+	
+
 0.12    9/3/2008 mpg
         added expand_xinclude to provide support for XIncludes
 

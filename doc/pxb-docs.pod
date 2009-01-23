@@ -174,7 +174,7 @@ Where:
 
 =item  
 
-  elements =>  [parameters  => [$parameters,$select_parameters]]  - defines choice between  two single 
+  elements =>  [parameters  => [$parameters,$select_parameters]]  - defines the choice between  two single 
                     ‘'parameters' sub-elements of different type
 
 =item  

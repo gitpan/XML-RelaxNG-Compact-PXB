@@ -2,7 +2,7 @@ package   XML::RelaxNG::Compact::DataModel;
  
 use strict;
 use warnings;
-use version; our $VERSION = '0.12';  
+use version; our $VERSION = '0.13';  
 
 =head1 NAME
 
@@ -11,7 +11,7 @@ XML::RelaxNG::Compact::DataModel -  RelaxNG Compact L<http://relaxng.org/compact
 
 =head1 VERSION
 
-Version 0.12 
+Version 0.13 
 
 =head1 DESCRIPTION
 
@@ -30,12 +30,12 @@ the  RelaxNG Compact schema.  Some limitations are (please see RelaxNG standard 
 
 
 =item  * support for includes and C<inherit> are provided by the data model developer, means you can split your model in different 
-          packages and inherit it. Just remember that PXB deals with references to hashes and arrays. See below.
+          packages and inherit it. Just remember that PXB object model is based on references to hashes and arrays. See below.
 
 
 =back
 
-Everything else can be expressed by perl constructs and will be supported by the created API.
+Everything else can be expressed by perl constructs and will be supported by the created data binding API.
 Every element from the schema can be expressed as perl hash reference:
 
 =over
@@ -134,8 +134,8 @@ condition will be placed in every piece of code where perl object is serialized 
 =head1 SYNOPSIS
       
      
-      ## for example lets define some RelaxNG schema  in Compact notation and then express it as perl data structure
-      #   this is a base schema from the L<http://ogf.org/schema/network/topology/base> namespace
+      ## for example lets define some RelaxNG schema  in Compact notation and then express it as perl data structures
+      #  this is a base schema from the L<http://ogf.org/schema/network/topology/base> namespace
       #
       # start =
       #  (
@@ -203,14 +203,24 @@ condition will be placed in every piece of code where perl object is serialized 
       #  	)
       #   }
  
-
+     
+     
+      #----------------------------------------------------------------------------
+      #    Lets start from the bottom of our schema
+      #
+      #   "parameter" element is the most elemental one
+      #   it has no sub-elements , handful of attributes and text content which is set only if value attribute is not
  
      $parameter	=  {attrs  => {name => 'enum:count,packetInterval,packetSize,ttl,valueUnits,startTime,endTime',  
                                value => 'scalar', 
 			       xmlns => 'nmwg'},
                     elements => [],
 		    text => 'unless:value',
-	         }; 		 
+	         }; 	
+		
+      #
+      #  the first complex element with more than one "parameter" sub-element
+      #			 
      $parameters =  {attrs  => {id => 'scalar',   
                                 xmlns => 'nmwg'},
                      elements => [
@@ -218,7 +228,10 @@ condition will be placed in every piece of code where perl object is serialized 
 			      
 			        ], 
 	           };
-   
+     #
+     # another layer of comlexity with added evetType sub-element, since this is a text content only element then 
+     #  there is no need to define it separately
+     #
   
      $metadata = {attrs  => {id => 'scalar', metadataIdRef => 'scalar',
                              xmlns => 'nmwg'},
@@ -227,7 +240,9 @@ condition will be placed in every piece of code where perl object is serialized 
  			         [eventType  =>  'text'] 
 			    ], 
  	        }; 
-
+     #
+     #    this is the top most element of the schema
+     #
      $message  = {attrs  => {id => 'scalar', type => 'scalar', xmlns => 'nmwg'}, 
                   elements => [ 
 		                 [parameters =>  [$parameters]],
@@ -236,8 +251,9 @@ condition will be placed in every piece of code where perl object is serialized 
 			      ], 
 	         };
      
-     ## this is it, as you can see it takes much less code to express the same RelaxNG compact schema 
+     ## this is it, as you can see it takes even  less code to express the same RelaxNG compact schema 
      ## and of course that means even less code in case of  XML schema
+     # more elaborate examples could be found below
     
 
 =head1 SQL MAPPING
@@ -282,7 +298,7 @@ Lets see how we can map parameters from C<parameter> element into some fields fr
 
 =head1   DEVELOPING DATA MODELS
 
-The best design pattern would be writing your data model by following your schema design. 
+The best design pattern would be consisted of writing your data model by following your schema design. 
 Create DataModel.pm package for the base schema and export all necessary 
 data structures and then somewhere in the building script add any extra sql mapping or even redefine some elements by replacing particular 
 element definitions with new data structure.  Of course you can mix elements with the same names from the different namespaces,
@@ -402,7 +418,7 @@ Fermitools license (open source, modified BSD type), see   L<http://fermitools.f
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 by Fermitools, Fermilab
+Copyright (C) 2007-2009 by Fermitools, Fermilab
 
 =cut
 

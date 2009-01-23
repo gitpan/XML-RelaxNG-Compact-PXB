@@ -5,7 +5,7 @@ Makefile.PL
 README
 lib/XML/RelaxNG/Compact/PXB.pm
 lib/XML/RelaxNG/Compact/DataModel.pm
-t/XML::RelaxNG::Compact::PXB.t
+t/XML__RelaxNG__Compact__PXB.t
 doc/perlcritic
 doc/perltidyrc
 doc/pxb-docs.pod

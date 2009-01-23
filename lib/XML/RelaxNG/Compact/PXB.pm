@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.12';
+use version; our $VERSION = '0.13';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.12
+Version 0.13
 
 =head1 DESCRIPTION
 
@@ -51,12 +51,15 @@ See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
       # create API builder with your desired parameters 
       #
       my $api_builder =   XML::RelaxNG::Compact::PXB->new({ 
-                                            top_dir =>   "/topdir/",
-                                            nsregistry => $nsreg,
-                                            datatypes_root =>   "Datatypes,
-					    project_root => 'API,
-                                            schema_version =>   "1.0",
-                                            test_dir =>   "/topdir/t"});
+                                            top_dir         =>   "/topdir/",
+                                            nsregistry      => $nsreg,
+                                            datatypes_root  =>   "Datatypes,
+					    project_root    => 'API,
+                                            schema_version  =>   "1.0",
+                                            test_dir        =>   "t",
+					    footer => POD::Credentials->new({author=> 'Author Name', 
+				     						license=> ' This stuff is for free !',
+									        copyright => 'Copyright (c) 2009, by me'});
 
       #### this call will build everything - API,tests, helper modules
       #### where  name parameter is the name of your root element  - "nsid:mymodel"
@@ -65,12 +68,12 @@ See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
       #  and /topdir/API/Datatypes/v1_0/nsid2/ for nsid2 namespace prefix
       #
       
-      $api_builder->buildAPI('mymodel', $model);
+      $api_builder->buildAPI({name => 'mymodel', element => $model});
       
      
       #### this call will build only test suit
       ####
-      $api_builder->buildTests('mymodel', $model);
+      $api_builder->buildTests({name => 'mymodel', element => $model});
 
       ####
 
@@ -269,21 +272,21 @@ sub  _dirPath {
 =head2 buildAPI()
 
 builds XML binding API recursively
-accepts    parameters:
+accepts hashref with keys:
 
 =over
 
 =item
 
-name of the root element - undef by default
+ name - scalar, name of the root element - undef by default
 
 =item
 
-reference to the hash representing the RelaxNG Compact schema, empty hash ref by default
+ element - reference to the hash representing the RelaxNG Compact schema, empty hash ref by default
 
 =item
 
-parent - is C<undef> for the root element
+ parent - optional scalar parameter, reference to the hash with definition of the parent element, its C<undef> for the root element
 
 =back
 
@@ -413,7 +416,7 @@ sub buildTests {
 =head2 buildClass
 
 builds  single class on the filesystem and corresponded test file
-accepts parameters:
+accepts position bounded parameters:
 
 =over
 
@@ -1230,8 +1233,9 @@ Test::Harness::runtests(<\$Bin/t/*.t>);
 }); 
     }
     print " Creating test suit... " if $self->DEBUG > 0;
-    $self->_fh(IO::File->new("$relative_path/$className.t" ,"w+"));
-    croak(" Failed to open test suite file: $! $relative_path/$className.t")  unless $self->_fh;
+    (my $test_filename = $className) =~ s/(\w)\:\:(\w)/$1\_\_$2/g;
+    $self->_fh(IO::File->new("$relative_path/$test_filename.t" ,"w+"));
+    croak(" Failed to open test suite file: $! $relative_path/$test_filename.t")  unless $self->_fh;
     my $test_number = 2;
     
     my $ns = $element->{attrs}->{xmlns};
@@ -1793,7 +1797,7 @@ with this software.  If not, see <http://fermitools.fnal.gov/about/terms.html>
 
 =head1  COPYRIGHT
 
-Copyright(c) 2007-2008, Fermi Research Alliance (FRA)
+Copyright(c) 2007-2009, Fermi Research Alliance (FRA)
 
 =cut
  
