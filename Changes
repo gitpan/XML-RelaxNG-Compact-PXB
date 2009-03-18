@@ -1,5 +1,8 @@
 Revision history for PXB
 
+0.14    3/18/2009 mpg
+        allowed to set See Also in the footer
+
 0.13    1/23/2009 mpg
         removed inc/.author directory
 	updated SYNOPSIS

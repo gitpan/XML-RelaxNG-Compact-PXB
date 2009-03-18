@@ -37,7 +37,7 @@ eval {
                                             datatypes_root =>   "Datatypes",
                                             schema_version =>   "1.0",
 					    test_dir =>   "t",
-				 	    footer => POD::Credentials->new({author=> 'Joe Doe'})
+				 	    footer => POD::Credentials->new({author=> 'Joe Doe', see_also => ' See this nice thing'})
 					    })
 
 };
@@ -63,7 +63,7 @@ eval {
                                             datatypes_root =>   "Datatypes",
                                             schema_version =>   "1.0",
 					    test_dir =>   "t",
-				 	    footer => POD::Credentials->new({author=> 'Joe Doe'})
+				 	    footer => POD::Credentials->new({author=> 'Joe Doe', see_also => ' See this nice thing'})
 					    });
    
    $obj2->buildTests({name=>'mymodel', element=>$model}); 
