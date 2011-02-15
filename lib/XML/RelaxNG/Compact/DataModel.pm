@@ -86,7 +86,7 @@ Where each <xxxx-definition> can be expressed in EBNF  as:
 
   entry-mapping = 'value' '=>'( element-name|( '[' element-name (',' element-name)+ ']')) ( ',' if-condition)?     
 
-  if-condition = 'if => ( ' attribute-name ':' attribute-value   | '[' (' attribute-name ':' attribute-value ',' )+ ']' )
+  if-condition = 'if => ( ' attribute-name ':' attribute-value   | '[' ( ' attribute-name ':' attribute-value ',' )+ ']' )
 
 =back
 

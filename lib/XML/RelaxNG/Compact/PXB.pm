@@ -493,7 +493,7 @@ returns $self
 		    $cond_string = '( 1 ';
 		    my @conditions = (ref $condition eq ref [])?@{$condition}:qw/$condition/;
 		    foreach my $cond (@conditions) {
-                        ($attr_name, $set) =  $condition  =~ m/^(\w+):?(\w+)?$/;
+                        ($attr_name, $set) =  split(':', $cond);
                         $cond_string .= $set?" || (\$self->get_$attr_name eq '$set') ":" || (\$self->get_$attr_name)";
                     }
 		    $cond_string .= ' )';
