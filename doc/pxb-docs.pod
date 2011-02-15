@@ -119,40 +119,40 @@ Where each <xxxx-definition> can be expressed in L<EBNF|/"7. EBNF> as:
 
 =over 
 
-      <attributes-definition> = (attribute-name  '‘=>’'  attribute-value) (',’'  <attributes-definition>)*
-     
-      attribute-name          = string
-     
-      namespace-id            = string
-     
-      attribute-value         = ‘scalar’| ('’enum:’'(attribute-name ( '‘,’'  attribute-name)*)) 
+  <attributes-definition> = (attribute-name  '‘=>’'  attribute-value) (',’'  <attributes-definition>)*
+ 
+  attribute-name	  = string
+ 
+  namespace-id  	  = string
+ 
+  attribute-value	  = ‘scalar’| ('’enum:’'(attribute-name ( '‘,’'  attribute-name)*)) 
 
-      <elements-definition> =   ( '‘[‘' element-name  '’=>'’  (
-                                                        	<element-variable>  |
-                                                       ’'['   ‘   <element-variable> '’]’' | 
-                                                       ’'[‘' (    <element-variable> '’,'’)+’ ']’' |
-                                                       '’[‘' ('['‘ <element-variable> '’]’,'’?)+ ’']'’ ) 
-                                                      ',' conditional-statement? ']’')*
+  <elements-definition> =   ( '‘[‘' element-name  '’=>'’  (
+							    <element-variable>  |
+						   ’'['   ‘   <element-variable> '’]’' | 
+						   ’'[‘' (    <element-variable> '’,'’)+’ ']’' |
+						   '’[‘' ('['‘ <element-variable> '’]’,'’?)+ ’']'’ ) 
+						  ',' conditional-statement? ']’')*
 
-      conditional-statement =  ('‘unless’'|’'if'’)’':'’(registered-name ('‘,'’ registered-name)*)
+  conditional-statement =  ('‘unless’'|’'if'’)’':'’(registered-name ('‘,'’ registered-name)*)
 
-      registered-name = attribute-name|element-name
+  registered-name = attribute-name|element-name
 
-      element-name  = string
+  element-name  = string
 
-      <text-content> = ‘scalar’|conditional-statement
-    
-      <sql-mapping-definition> = (sql-table-name ‘'=>’ ‘{'‘ sql-table-entry '‘}’' ) ( '‘,'’ <sql-mapping-definition>)*
+  <text-content> = ‘scalar’|conditional-statement
 
-      sql-table-entry =  (sql-entry-name '‘=>’ ’{'‘ entry-mapping ‘'}’' ) ( '‘,’ '  sql-table-entry )*
-     
-      sql-table-name = string
-     
-      sql-entry-name = string
+  <sql-mapping-definition> = (sql-table-name ‘'=>’ ‘{'‘ sql-table-entry '‘}’' ) ( '‘,'’ <sql-mapping-definition>)*
 
-      entry-mapping = '‘value’ ‘=>' ’( element-name|( '‘['‘ element-name ('‘,'’ element-name)+ ’']’')) ( ‘','’ if-condition)?  
-     
-      if-condition = '‘if’ ‘=>’' attribute-name '‘:’' attribute-value
+  sql-table-entry =  (sql-entry-name '‘=>’ ’{'‘ entry-mapping ‘'}’' ) ( '‘,’ '  sql-table-entry )*
+ 
+  sql-table-name = string
+ 
+  sql-entry-name = string
+
+  entry-mapping = '‘value’ ‘=>' ’( element-name|( '‘['‘ element-name ('‘,'’ element-name)+ ’']’')) ( ‘','’ if-condition)?  
+ 
+  if-condition = '‘if’ ‘=>’( ' attribute-name '‘:’' attribute-value | '[' ( ' attribute-name ':' attribute-value ',' )+ ']'  )
 
 
 =back
@@ -261,8 +261,8 @@ optional (only when value attribute is undefined) text content. For PingER  serv
 =over
 
 
-   $parameter->{'attrs'} = {name =>      'enum:count,packetInterval,packetSize,ttl,valueUnits,startTime,endTime,deadline,transport,setLimit', 
-                                         value => 'scalar', xmlns => 'nmwg'};
+ $parameter->{'attrs'} = {name =>      'enum:count,packetInterval,packetSize,ttl,valueUnits,startTime,endTime,deadline,transport,setLimit', 
+                               value => 'scalar', xmlns => 'nmwg'};
 
 
 =back
@@ -272,29 +272,29 @@ Where explicit enumeration was  added for the list of allowed values of the name
 =over
 
 
-     $parameter->{sql} = {metaData => {count => {value =>  ['value' , 'text'],
-                                                                                     if => 'name:count'},
-                                                  packetInterval=> {value =>  ['value' , 'text'],  
-                                                                                    if => 'name:packetInterval'},
-                                                  packetSize=> {value => ['value' , 'text'] ,
-                                                                                    if => 'name:packetSize'},
-                                                  ttl=> {value =>  ['value' , 'text'],
-                                                                                    if => 'name:ttl'},
-                                                  deadline => {value =>  ['value' , 'text'] , 
-                                                                                    if => 'name:deadline'},
-                                                  transport => { value =>   ['value' , 'text'],
-                                                                                   if => 'name:transport'},
-                                                            },
-                         time    =>      {      start => {value => ['value' , 'text'], 
-                                                                                   if => 'name:startTime'},
-                                                                     end  =>   { value =>  ['value' , 'text'],
-                                                                                if => 'name:endTime'},
-                                                             },
-                         limit    =>   {      setLimit => { value =>  ['value' , 'text'], 
-                                                                                  if => 'name:setLimit'},               
-                                            },
-                                       };   
-				       
+  $parameter->{sql} = {metaData => {count => {value =>  ['value' , 'text'],
+										  if => 'name:count'},
+					       packetInterval=> {value =>  ['value' , 'text'],  
+										 if => 'name:packetInterval'},
+					       packetSize=> {value => ['value' , 'text'] ,
+										 if => 'name:packetSize'},
+					       ttl=> {value =>  ['value' , 'text'],
+										 if => 'name:ttl'},
+					       deadline => {value =>  ['value' , 'text'] , 
+										 if => 'name:deadline'},
+					       transport => { value =>   ['value' , 'text'],
+										if => 'name:transport'},
+							 },
+		      time    =>      {      start => {value => ['value' , 'text'], 
+										if => 'name:startTime'},
+								  end  =>   { value =>  ['value' , 'text'],
+									     if => 'name:endTime'},
+							  },
+		      limit    =>   {	   setLimit => { value =>  ['value' , 'text'], 
+									       if => 'name:setLimit'},  	     
+					 },
+				    };   
+     				    
 
 =back
 

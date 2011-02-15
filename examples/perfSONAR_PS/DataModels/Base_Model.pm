@@ -137,14 +137,12 @@ $event_datum = { attrs => { timeType => 'scalar', timeValue => 'scalar', xmlns =
      			   	[stateAdmin => 'text'],
      			   	[stateOper => 'text'],
      			  
-     			     ],
-     		      
+     			     ],    		      
                }; 
 
 $addressL4 = { attrs  => {value => 'scalar', type  => 'scalar',  xmlns => 'nmtl4'},
 	       elements => [ ],
 	       text => 'unless:value',
-
              }; 
 
 $addressL3 = { attrs  => {value => 'scalar', type  => 'scalar',  xmlns => 'nmtl3'},
@@ -166,7 +164,6 @@ $interfaceL3  = { attrs  => {id => 'scalar', interfaceIdRef => 'scalar',   xmlns
      			       [capacity  =>  'text'],
      			      ], 
 	          text => 'unless:ipAddress',
-
                 };
 
 $endPointL4 =	{ attrs  => { port => 'scalar', protocol => 'scalar', role => 'enum:src,dst',   xmlns => 'nmtl4'},

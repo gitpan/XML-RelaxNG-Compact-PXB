@@ -3,7 +3,7 @@ package  XML::RelaxNG::Compact::PXB;
 use strict;
 use warnings;
 use English qw( -no_match_vars);
-use version; our $VERSION = '0.14';
+use version; our $VERSION = '0.15';
 
 
 =head1 NAME
@@ -12,7 +12,7 @@ XML::RelaxNG::Compact::PXB  -   create perl XML (RelaxNG Compact) data binding A
 
 =head1 VERSION
 
-Version 0.14
+Version 0.15
 
 =head1 DESCRIPTION
 
@@ -59,7 +59,7 @@ See L<XML::RelaxNG::Compact::DataModel> for more details and examples.
                                             test_dir        =>   "t",
 					    footer => POD::Credentials->new({author=> 'Author Name', 
 				     						license=> ' This stuff is for free !',
-									        copyright => 'Copyright (c) 2009, by me'});
+									        copyright => 'Copyright (c) 2011, by me'});
 
       #### this call will build everything - API,tests, helper modules
       #### where  name parameter is the name of your root element  - "nsid:mymodel"
@@ -488,9 +488,16 @@ returns $self
                     croak(" SQL config malformed for element=$name table=$table field=$field, but value is missied");
                 }
                 my $condition = $element->{sql}->{$table}->{$field}->{if};
-                my ($attr_name, $set) = $condition?$condition  =~ m/^(\w+):?(\w+)?$/:('','');
-                my $cond_string = $condition && $set?" (\$self->get_$attr_name eq '$set') ":$condition?" (\$self->get_$attr_name)":'';
-
+		my ($attr_name, $set, $cond_string) = ('','','');
+		if($condition) {
+		    $cond_string = '( 1 ';
+		    my @conditions = (ref $condition eq ref [])?@{$condition}:qw/$condition/;
+		    foreach my $cond (@conditions) {
+                        ($attr_name, $set) =  $condition  =~ m/^(\w+):?(\w+)?$/;
+                        $cond_string .= $set?" || (\$self->get_$attr_name eq '$set') ":" || (\$self->get_$attr_name)";
+                    }
+		    $cond_string .= ' )';
+		}  
                 $value = [$value]  if ref($value) ne 'ARRAY';
 
                 foreach my   $possible (@{$value}) {
@@ -1781,7 +1788,7 @@ with this software.  If not, see <http://fermitools.fnal.gov/about/terms.html>
 
 =head1  COPYRIGHT
 
-Copyright(c) 2007-2009, Fermi Research Alliance (FRA)
+Copyright(c) 2007-2011, Fermi Research Alliance (FRA)
 
 =cut
  

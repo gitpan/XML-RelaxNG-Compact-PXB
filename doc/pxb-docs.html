@@ -135,40 +135,40 @@ propagation of the implemented callbacks across the API.</p>
                              '}'</pre>
 <p>Where each &lt;xxxx-definition&gt; can be expressed in <a href="#7__ebnf">EBNF</a> as:</p>
 <pre>
-      &lt;attributes-definition&gt; = (attribute-name  '‘=&gt;’'  attribute-value) (',’'  &lt;attributes-definition&gt;)*
-     
-      attribute-name          = string
-     
-      namespace-id            = string
-     
-      attribute-value         = ‘scalar’| ('’enum:’'(attribute-name ( '‘,’'  attribute-name)*))</pre>
+  &lt;attributes-definition&gt; = (attribute-name  '‘=&gt;’'  attribute-value) (',’'  &lt;attributes-definition&gt;)*
+ 
+  attribute-name          = string
+ 
+  namespace-id            = string
+ 
+  attribute-value         = ‘scalar’| ('’enum:’'(attribute-name ( '‘,’'  attribute-name)*))</pre>
 <pre>
-      &lt;elements-definition&gt; =   ( '‘[‘' element-name  '’=&gt;'’  (
-                                                                &lt;element-variable&gt;  |
-                                                       ’'['   ‘   &lt;element-variable&gt; '’]’' | 
-                                                       ’'[‘' (    &lt;element-variable&gt; '’,'’)+’ ']’' |
-                                                       '’[‘' ('['‘ &lt;element-variable&gt; '’]’,'’?)+ ’']'’ ) 
-                                                      ',' conditional-statement? ']’')*</pre>
+  &lt;elements-definition&gt; =   ( '‘[‘' element-name  '’=&gt;'’  (
+                                                            &lt;element-variable&gt;  |
+                                                   ’'['   ‘   &lt;element-variable&gt; '’]’' | 
+                                                   ’'[‘' (    &lt;element-variable&gt; '’,'’)+’ ']’' |
+                                                   '’[‘' ('['‘ &lt;element-variable&gt; '’]’,'’?)+ ’']'’ ) 
+                                                  ',' conditional-statement? ']’')*</pre>
 <pre>
-      conditional-statement =  ('‘unless’'|’'if'’)’':'’(registered-name ('‘,'’ registered-name)*)</pre>
+  conditional-statement =  ('‘unless’'|’'if'’)’':'’(registered-name ('‘,'’ registered-name)*)</pre>
 <pre>
-      registered-name = attribute-name|element-name</pre>
+  registered-name = attribute-name|element-name</pre>
 <pre>
-      element-name  = string</pre>
+  element-name  = string</pre>
 <pre>
-      &lt;text-content&gt; = ‘scalar’|conditional-statement
-    
-      &lt;sql-mapping-definition&gt; = (sql-table-name ‘'=&gt;’ ‘{'‘ sql-table-entry '‘}’' ) ( '‘,'’ &lt;sql-mapping-definition&gt;)*</pre>
+  &lt;text-content&gt; = ‘scalar’|conditional-statement</pre>
 <pre>
-      sql-table-entry =  (sql-entry-name '‘=&gt;’ ’{'‘ entry-mapping ‘'}’' ) ( '‘,’ '  sql-table-entry )*
-     
-      sql-table-name = string
-     
-      sql-entry-name = string</pre>
+  &lt;sql-mapping-definition&gt; = (sql-table-name ‘'=&gt;’ ‘{'‘ sql-table-entry '‘}’' ) ( '‘,'’ &lt;sql-mapping-definition&gt;)*</pre>
 <pre>
-      entry-mapping = '‘value’ ‘=&gt;' ’( element-name|( '‘['‘ element-name ('‘,'’ element-name)+ ’']’')) ( ‘','’ if-condition)?  
-     
-      if-condition = '‘if’ ‘=&gt;’' attribute-name '‘:’' attribute-value</pre>
+  sql-table-entry =  (sql-entry-name '‘=&gt;’ ’{'‘ entry-mapping ‘'}’' ) ( '‘,’ '  sql-table-entry )*
+ 
+  sql-table-name = string
+ 
+  sql-entry-name = string</pre>
+<pre>
+  entry-mapping = '‘value’ ‘=&gt;' ’( element-name|( '‘['‘ element-name ('‘,'’ element-name)+ ’']’')) ( ‘','’ if-condition)?  
+ 
+  if-condition = '‘if’ ‘=&gt;’( ' attribute-name '‘:’' attribute-value | '[' ( ' attribute-name ':' attribute-value ',' )+ ']'  )</pre>
 <p>Where:</p>
 <dl>
 <dt></dt>
@@ -184,7 +184,7 @@ propagation of the implemented callbacks across the API.</p>
 <dt></dt>
 <dd>
 <pre>
-  elements =&gt;  [parameters  =&gt; [$parameters,$select_parameters]]  - defines choice between  two single 
+  elements =&gt;  [parameters  =&gt; [$parameters,$select_parameters]]  - defines the choice between  two single 
                     ‘'parameters' sub-elements of different type</pre>
 </dd>
 <dt></dt>
@@ -257,32 +257,32 @@ Let’s look on example of  the parameter element. It is described in the base mod
 <p>That means the parameter element has name and value attributes, does not have any sub-elements and might have 
 optional (only when value attribute is undefined) text content. For PingER  service it was extended as:</p>
 <pre>
-   $parameter-&gt;{'attrs'} = {name =&gt;      'enum:count,packetInterval,packetSize,ttl,valueUnits,startTime,endTime,deadline,transport,setLimit', 
-                                         value =&gt; 'scalar', xmlns =&gt; 'nmwg'};</pre>
+ $parameter-&gt;{'attrs'} = {name =&gt;      'enum:count,packetInterval,packetSize,ttl,valueUnits,startTime,endTime,deadline,transport,setLimit', 
+                               value =&gt; 'scalar', xmlns =&gt; 'nmwg'};</pre>
 <p>Where explicit enumeration was  added for the list of allowed values of the name attribute and SQL mapping was defined as:</p>
 <pre>
-     $parameter-&gt;{sql} = {metaData =&gt; {count =&gt; {value =&gt;  ['value' , 'text'],
-                                                                                     if =&gt; 'name:count'},
-                                                  packetInterval=&gt; {value =&gt;  ['value' , 'text'],  
-                                                                                    if =&gt; 'name:packetInterval'},
-                                                  packetSize=&gt; {value =&gt; ['value' , 'text'] ,
-                                                                                    if =&gt; 'name:packetSize'},
-                                                  ttl=&gt; {value =&gt;  ['value' , 'text'],
-                                                                                    if =&gt; 'name:ttl'},
-                                                  deadline =&gt; {value =&gt;  ['value' , 'text'] , 
-                                                                                    if =&gt; 'name:deadline'},
-                                                  transport =&gt; { value =&gt;   ['value' , 'text'],
-                                                                                   if =&gt; 'name:transport'},
-                                                            },
-                         time    =&gt;      {      start =&gt; {value =&gt; ['value' , 'text'], 
-                                                                                   if =&gt; 'name:startTime'},
-                                                                     end  =&gt;   { value =&gt;  ['value' , 'text'],
-                                                                                if =&gt; 'name:endTime'},
-                                                             },
-                         limit    =&gt;   {      setLimit =&gt; { value =&gt;  ['value' , 'text'], 
-                                                                                  if =&gt; 'name:setLimit'},               
-                                            },
-                                       };</pre>
+  $parameter-&gt;{sql} = {metaData =&gt; {count =&gt; {value =&gt;  ['value' , 'text'],
+                                                                                  if =&gt; 'name:count'},
+                                               packetInterval=&gt; {value =&gt;  ['value' , 'text'],  
+                                                                                 if =&gt; 'name:packetInterval'},
+                                               packetSize=&gt; {value =&gt; ['value' , 'text'] ,
+                                                                                 if =&gt; 'name:packetSize'},
+                                               ttl=&gt; {value =&gt;  ['value' , 'text'],
+                                                                                 if =&gt; 'name:ttl'},
+                                               deadline =&gt; {value =&gt;  ['value' , 'text'] , 
+                                                                                 if =&gt; 'name:deadline'},
+                                               transport =&gt; { value =&gt;   ['value' , 'text'],
+                                                                                if =&gt; 'name:transport'},
+                                                         },
+                      time    =&gt;      {      start =&gt; {value =&gt; ['value' , 'text'], 
+                                                                                if =&gt; 'name:startTime'},
+                                                                  end  =&gt;   { value =&gt;  ['value' , 'text'],
+                                                                             if =&gt; 'name:endTime'},
+                                                          },
+                      limit    =&gt;   {      setLimit =&gt; { value =&gt;  ['value' , 'text'], 
+                                                                               if =&gt; 'name:setLimit'},               
+                                         },
+                                    };</pre>
 <p>Please note that <code>time</code> table name was made up to allow mapping of the time range related entities. 
 Also, <code>tlimit</code> table name was made up to provide non-existed paging mechanism in order to limit the 
 size of the requested dataset in the response message. As it clear from the example above, the schema can be

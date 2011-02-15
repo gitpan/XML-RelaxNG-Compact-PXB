@@ -4,7 +4,7 @@ XML::RelaxNG::Compact::PXB
 
 VERSION
 
-  0.14
+  0.15
 
 DESCRIPTION
 
@@ -73,7 +73,7 @@ better support for users's schema callbacks
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2007-2009,  Fermi Reasearch Alliance (FRA)  
+Copyright (C) 2007-2011,  Fermi Reasearch Alliance (FRA)  
 
 You should have received a copy of the Fermitools license
 with this software.  If not, see <http://fermitools.fnal.gov/about/terms.html>
