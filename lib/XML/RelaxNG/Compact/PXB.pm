@@ -490,13 +490,13 @@ returns $self
                 my $condition = $element->{sql}->{$table}->{$field}->{if};
 		my ($attr_name, $set, $cond_string) = ('','','');
 		if($condition) {
-		    $cond_string = '( 1 ';
+		    my @conditions_arr = ();
 		    my @conditions = (ref $condition eq ref [])?@{$condition}:qw/$condition/;
 		    foreach my $cond (@conditions) {
                         ($attr_name, $set) =  split(':', $cond);
-                        $cond_string .= $set?" || (\$self->get_$attr_name eq '$set') ":" || (\$self->get_$attr_name)";
+                        push  @conditions_arr, ($set?" (\$self->get_$attr_name eq '$set') ":" (\$self->get_$attr_name) ");
                     }
-		    $cond_string .= ' )';
+		    $cond_string = '(' . join(' || ', @conditions_arr) . ')' if(@conditions_arr);
 		}  
                 $value = [$value]  if ref($value) ne 'ARRAY';
 
