@@ -18,6 +18,7 @@ BEGIN {
 my $element =  {  'attrs'  => {value => 'scalar', type => 'scalar', port => 'scalar',  xmlns => 'nsid'},
                    elements => [], 
 		   text => 'unless:value',
+		   sql      => { table1 => { field1 => { value => ['value'], if => 'name:keyword'} }},
                };
 	       
 my $model =    {  'attrs'  => {id => 'scalar', type => 'scalar', xmlns => 'nsid'}, 

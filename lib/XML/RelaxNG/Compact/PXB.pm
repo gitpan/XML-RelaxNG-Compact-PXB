@@ -491,7 +491,7 @@ returns $self
 		my ($attr_name, $set, $cond_string) = ('','','');
 		if($condition) {
 		    my @conditions_arr = ();
-		    my @conditions = (ref $condition eq ref [])?@{$condition}:qw/$condition/;
+		    my @conditions = (ref $condition eq ref [])?@{$condition}:($condition);
 		    foreach my $cond (@conditions) {
                         ($attr_name, $set) =  split(':', $cond);
                         push  @conditions_arr, ($set?" (\$self->get_$attr_name eq '$set') ":" (\$self->get_$attr_name) ");
